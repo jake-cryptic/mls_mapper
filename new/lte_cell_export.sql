@@ -17,15 +17,15 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `sectors` (
   `cell_id` int(15) NOT NULL,
-  `mnc` int(3) NOT NULL,
+  `mnc` smallint(3) NOT NULL,
   `enodeb_id` int(10) NOT NULL,
-  `sector_id` int(3) NOT NULL,
-  `pci` int(3) NOT NULL,
+  `sector_id` smallint(3) NOT NULL,
+  `pci` smallint(3) NOT NULL,
   `lat` varchar(20) NOT NULL,
   `lng` varchar(20) NOT NULL,
   `samples` int(5) NOT NULL,
-  `created` int(15) NOT NULL,
-  `updated` int(15) NOT NULL
+  `created` int(11) UNSIGNED NOT NULL,
+  `updated` int(11) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -35,7 +35,7 @@ CREATE TABLE `masts` (
   `enodeb_id` int(10) NOT NULL,
   `lat` varchar(20) NOT NULL,
   `lng` varchar(20) NOT NULL,
-  `updated` int(15) NOT NULL
+  `updated` int(11) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
