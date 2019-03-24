@@ -107,6 +107,12 @@ while (($data = fgetcsv($fh)) !== FALSE){
 
 // Clean up memory
 $ins->close();
+
+$r = $db_connection->query("OPTIMIZE TABLE " . DB_TABLE);
+if (!$r){
+	echo "\nDatabase may perform poorly, optimisation couldn't complete.\n";
+}
+
 $db_connection->close();
 
 fclose($fh);
