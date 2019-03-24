@@ -15,15 +15,12 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `sectors`
---
-
 CREATE TABLE `sectors` (
   `cell_id` int(15) NOT NULL,
   `mnc` int(3) NOT NULL,
   `enodeb_id` int(10) NOT NULL,
   `sector_id` int(3) NOT NULL,
+  `pci` int(3) NOT NULL,
   `lat` varchar(20) NOT NULL,
   `lng` varchar(20) NOT NULL,
   `samples` int(5) NOT NULL,
@@ -31,9 +28,25 @@ CREATE TABLE `sectors` (
   `updated` int(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Indexes for dumped tables
---
+
+CREATE TABLE `masts` (
+  `mast_id` int(15) NOT NULL,
+  `mnc` int(3) NOT NULL,
+  `enodeb_id` int(10) NOT NULL,
+  `lat` varchar(20) NOT NULL,
+  `lng` varchar(20) NOT NULL,
+  `updated` int(15) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+ALTER TABLE `masts`
+  ADD PRIMARY KEY (`mast_id`),
+  ADD KEY `mnc_index` (`mnc`),
+  ADD KEY `enb_index` (`enodeb_id`);
+
+
+ALTER TABLE `masts`
+  MODIFY `mast_id` int(15) NOT NULL AUTO_INCREMENT;
 
 --
 -- Indexes for table `sectors`

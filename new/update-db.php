@@ -50,8 +50,8 @@ if ($db_connection->connect_error) {
 	die("Database connection error.");
 }
 
-$ins = $db_connection->prepare("INSERT INTO " . DB_TABLE . " (cell_id,mnc,enodeb_id,sector_id,lat,lng,samples,created,updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$ins->bind_param("iiiissiii",$cellId,$mnc,$eNodeB,$sectorId,$coordLat,$coordLng,$numSamples,$timeCreated,$timeUpdated);
+$ins = $db_connection->prepare("INSERT INTO " . DB_TABLE . " (cell_id,mnc,enodeb_id,sector_id,pci,lat,lng,samples,created,updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$ins->bind_param("iiiiissiii",$cellId,$mnc,$eNodeB,$sectorId,$pci,$coordLat,$coordLng,$numSamples,$timeCreated,$timeUpdated);
 
 // Load network data filter file
 include("uk_networks_filter.php");
@@ -82,6 +82,7 @@ while (($data = fgetcsv($fh)) !== FALSE){
 	$cellId = $data[4];
 	$eNodeB = $cellInfo[0];
 	$sectorId = $cellInfo[1];
+	$pci = $data[5];
 	
 	$coordLat = $data[7];
 	$coordLng = $data[6];
