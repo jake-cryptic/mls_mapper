@@ -53,16 +53,31 @@ if ($db_connection->connect_error) {
 $ins = $db_connection->prepare("INSERT INTO " . DB_TABLE . " (cell_id,mnc,enodeb_id,sector_id,lat,lng,samples,created,updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $ins->bind_param("iiiissiii",$cellId,$mnc,$eNodeB,$sectorId,$coordLat,$coordLng,$numSamples,$timeCreated,$timeUpdated);
 
+// Load network data filter file
+include("uk_networks_filter.php");
+
+// Set variables
 $iter = 0;
+$r = 0;
+$p = 0;
+$v = 0;
+$s = time()+1;
 
 while (($data = fgetcsv($fh)) !== FALSE){
 	if ($limitRAT !== false && $data[0] !== $limitRAT) continue;
 	if ($limitMCC !== false && $data[1] !== $limitMCC) continue;
 	if ($limitMNC !== false && $data[2] !== $limitMNC) continue;
 	
-	$mnc = $data[2];
+	$mnc = intval($data[2]);
+	
+	if (!in_array($mnc,array(10,15,20,30))) continue;
 	
 	$cellInfo = cidToEnb($data[4]);
+	
+	if ($uk_filter_map[$mnc]($cellInfo[0],$cellInfo[1]) === false){
+		echo "Sector ID issue MNC " . $data[2] . " eNb:" . $cellInfo[0] . " Sector:" . $cellInfo[1] . "\n";
+		continue;
+	}
 	
 	$cellId = $data[4];
 	$eNodeB = $cellInfo[0];
@@ -77,7 +92,15 @@ while (($data = fgetcsv($fh)) !== FALSE){
 	
 	$ins->execute();
 	
-	if ($iter % 1000 === 0) calcPerformance($iter);
+	// Update the "UI"
+	if (time() > $s){
+		$s = time();
+		$v = $p;
+		$p = 0;
+		echo ($v === 0 ? "??" : $v) . " records/sec\n";
+	} else {
+		$p++;
+	}
 	
 	$iter++;
 }
@@ -88,4 +111,4 @@ $db_connection->close();
 
 fclose($fh);
 
-die("Added " . $iter . " records to database");
+die("Added " . $iter . " records to database in " . (-1 * ($start-time())) . " seconds.");
