@@ -33,6 +33,8 @@ $get_enodebs = $db_connection->query("SELECT DISTINCT mnc,enodeb_id FROM " . DB_
 $get_sectors = $db_connection->prepare("SELECT sector_id,lat,lng,samples,created,updated FROM " . DB_TABLE . " WHERE mnc = ? AND enodeb_id = ? LIMIT 50");
 $get_sectors->bind_param("ii",$thisMnc,$thisEnb);
 
+echo "Compiling data...\n";
+
 while ($cell = $get_enodebs->fetch_object()){
 	//print($cell->mnc . " eNB:" . $cell->enodeb_id . "\n");
 	
@@ -62,11 +64,13 @@ print("eNbs for ee:" . count(array_keys($eNbList[30])) . "\n");
 
 function sampleWeight($samples){
 	if ($samples === 1) 	return 1;
-	if ($samples <= 3) 		return 2;
+	if ($samples <= 3) 		return 3;
 	if ($samples <= 7) 		return 4;
 	if ($samples <= 10) 	return 5;
 	if ($samples <= 50) 	return 7;
-	if ($samples <= 100) 	return 10;
+	if ($samples <= 100) 	return 11;
+	if ($samples <= 250) 	return 13;
+	return 14;
 }
 
 function averageCoords($sector){
@@ -74,11 +78,13 @@ function averageCoords($sector){
 	$lng = 0; $lngTot = 0;
 	
 	foreach ($sector as $sectorId=>$sectorData){
-		$latTot++;
-		$lngTot++;
+		$counter = sampleWeight($sectorData[2]);
 		
-		$lat += floatval($sectorData[0]);
-		$lng += floatval($sectorData[1]);
+		$latTot += $counter;
+		$lngTot += $counter;
+		
+		$lat += floatval($sectorData[0]) * $counter;
+		$lng += floatval($sectorData[1]) * $counter;
 	}
 	
 	$lat /= $latTot;
@@ -87,14 +93,35 @@ function averageCoords($sector){
 	return array($lat,$lng);
 }
 
+echo "Locating masts...\n";
+
 // Insert back into database
-foreach ($eNbList as $mncData){
+$ins = $db_connection->prepare("INSERT INTO masts (mnc,enodeb_id,lat,lng,updated) VALUES (?, ?, ?, ?, ?)");
+$ins->bind_param("iissi",$mnc,$eNodeB,$coordLat,$coordLng,$currTime);
+
+$iter = 0;
+
+foreach ($eNbList as $mncCode=>$mncData){
+	echo "Locator processing data MNC[{$mncCode}]\n";
+	$currTime = time();
+	
 	foreach ($mncData as $eNbId=>$eNbData){
-		if ($eNbId !== 3518) continue;
-		print($eNbId . "\n");
-		print_r(averageCoords($eNbData));
-		print_r("\n" . "\n");
+		$mnc = $mncCode;
+		$eNodeB = $eNbId;
+		
+		$siteLocation = averageCoords($eNbData);
+		
+		$coordLat = $siteLocation[0];
+		$coordLng = $siteLocation[1];
+		
+		$ins->execute();
+		
+		$iter++;
 	}
 }
 
+$ins->close();
+
 $db_connection->close();
+
+echo "{$iter} masts located!\n";
