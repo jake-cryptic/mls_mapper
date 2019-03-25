@@ -34,7 +34,7 @@ $get_sectors = $db_connection->prepare("SELECT sector_id,lat,lng,samples,created
 $get_sectors->bind_param("ii",$thisMnc,$thisEnb);
 
 while ($cell = $get_enodebs->fetch_object()){
-	print($cell->mnc . " eNB:" . $cell->enodeb_id . "\n");
+	//print($cell->mnc . " eNB:" . $cell->enodeb_id . "\n");
 	
 	$thisMnc = $cell->mnc;
 	$thisEnb = $cell->enodeb_id;
@@ -59,5 +59,42 @@ print("eNbs for O2:" . count(array_keys($eNbList[10])) . "\n");
 print("eNbs for vf:" . count(array_keys($eNbList[15])) . "\n");
 print("eNbs for h3:" . count(array_keys($eNbList[20])) . "\n");
 print("eNbs for ee:" . count(array_keys($eNbList[30])) . "\n");
+
+function sampleWeight($samples){
+	if ($samples === 1) 	return 1;
+	if ($samples <= 3) 		return 2;
+	if ($samples <= 7) 		return 4;
+	if ($samples <= 10) 	return 5;
+	if ($samples <= 50) 	return 7;
+	if ($samples <= 100) 	return 10;
+}
+
+function averageCoords($sector){
+	$lat = 0; $latTot = 0;
+	$lng = 0; $lngTot = 0;
+	
+	foreach ($sector as $sectorId=>$sectorData){
+		$latTot++;
+		$lngTot++;
+		
+		$lat += floatval($sectorData[0]);
+		$lng += floatval($sectorData[1]);
+	}
+	
+	$lat /= $latTot;
+	$lng /= $lngTot;
+	
+	return array($lat,$lng);
+}
+
+// Insert back into database
+foreach ($eNbList as $mncData){
+	foreach ($mncData as $eNbId=>$eNbData){
+		if ($eNbId !== 3518) continue;
+		print($eNbId . "\n");
+		print_r(averageCoords($eNbData));
+		print_r("\n" . "\n");
+	}
+}
 
 $db_connection->close();
