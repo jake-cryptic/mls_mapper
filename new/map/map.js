@@ -1,10 +1,30 @@
 var v = {
 	map:null,
-	mno:10,
-	markers:[],
 	ico:{
 		main:null,
 		multiple:null
+	},
+	
+	mno:10,
+	markers:[],
+	
+	onlySectors:null,
+	cData:{
+		10:{
+			"L08":[110,120,130,140,150,160],
+			"L18":[114,124,134,144,154,164],
+			"L21":[115,125,135,145,155,165],
+			"L23":[116,126,136,146,156,166,117,127,137,147,157,167],
+			"L23-C1":[116,126,136,146,156,166],
+			"L23-C2":[117,127,137,147,157,167]
+		},
+		15:{},
+		20:{
+			"L18":[0,1,2,3,4,5],
+			"L08":[6,7,8],
+			"L21":[71,72,73,74,75,76]
+		},
+		30:{}
 	},
 	
 	init:function(){
@@ -42,6 +62,7 @@ var v = {
 	changeMno:function(mno){
 		v.mno = parseInt(mno.value);
 		v.removeMapMarkers();
+		v.genOptions();
 		v.loadPoints();
 	},
 	
@@ -60,6 +81,22 @@ var v = {
 		v.map.addLayer(v.base);
 	},
 	
+	genOptions:function(){
+		v.onlySectors = null;
+		
+		$("#mnoSectors").empty().append(
+			$("<select/>",{"value":"null","selected":true}).text("All")
+		);
+		
+		var mnoData = Object.keys(v.cData[v.mno]);
+		console.log(mnoData);
+		for (var i = 0;i<mnoData.length;i++){
+			$("#mnoSectors").append(
+				$("<select/>",{"value":mnoData[i]}).text(mnoData[i])
+			);
+		}
+	},
+	
 	mapMove:function(evt){
 		console.log(evt);
 		v.removeMapMarkers();
@@ -73,6 +110,47 @@ var v = {
 		v.markers = [];
 	},
 	
+	findItem:function(arr1,arr2){
+		console.log(arr1);
+		for (var i = 0;i<arr2.length;i++){
+			if (arr1.indexOf(arr2[i].toString()) !== -1) return true;
+		}
+		return false;
+	},
+	
+	sectorInfo:function(mno,sectors){
+		var ret = "Bands: ";
+		if (mno === 10){
+			if (v.findItem(sectors,[115,125,135,145,155,165])) ret += "1 ";
+			if (v.findItem(sectors,[114,124,134,144,154,164])) ret += "3 ";
+			if (v.findItem(sectors,[110,120,130,140,150,160])) ret += "20 ";
+			if (v.findItem(sectors,[112,122,132])) ret += "8 ";
+			if (v.findItem(sectors,[116,126,136,146,156,166])) ret += "40C1 ";
+			if (v.findItem(sectors,[117,127,137,147,157,167])) ret += "40C2";
+		} else if (mno === 15){
+			if (v.findItem(sectors,[15,25,35,45,55,65])) ret += "1 ";
+			if (v.findItem(sectors,[14,24,34,44,54,64])) ret += "1 ";
+			if (v.findItem(sectors,[16,26,36,46,56,66])) ret += "3 ";
+			if (v.findItem(sectors,[18,28,38,48,58,68])) ret += "7 ";
+			if (v.findItem(sectors,[12,22,32])) ret += "8 ";
+			if (v.findItem(sectors,[10,20,30,40,50,60])) ret += "20 ";
+			if (v.findItem(sectors,[19,29,39,49,59,69])) ret += "38";
+		} else if (mno === 20){
+			if (v.findItem(sectors,[71,72,73,74,75,76])) ret += "1 ";
+			if (v.findItem(sectors,[0,1,2,3,4,5])) ret += "3 ";
+			if (v.findItem(sectors,[6,7,8])) ret += "20";
+		} else if (mno === 30) {
+			if (v.findItem(sectors,[18,19,20])) ret += "1 ";
+			if (v.findItem(sectors,[0,1,2])) ret += "3P ";
+			if (v.findItem(sectors,[3,4,5])) ret += "3S ";
+			if (v.findItem(sectors,[6,7,8])) ret += "7P ";
+			if (v.findItem(sectors,[9,10,11])) ret += "7S ";
+			if (v.findItem(sectors,[12,13,14])) ret += "20";
+		}
+		
+		return ret;
+	},
+	
 	loadPoints:function(){
 		var bounds = v.map.getBounds();
 		
@@ -84,7 +162,8 @@ var v = {
 				nelng:bounds._northEast.lng,
 				swlat:bounds._southWest.lat,
 				swlng:bounds._southWest.lng,
-				mno:v.mno
+				mno:v.mno,
+				sectors:v.cData[v.onlySectors]
 			},
 			dataType:'json',
 			success:v.placePoints,
@@ -115,7 +194,13 @@ var v = {
 				new L.marker(
 					[tLat,tLng],
 					{icon:marker}
-				).bindPopup(txt,{maxWidth:(screen.availWidth >= 600 ? 600 : screen.availWidth),className:'site_popup'})
+				).bindPopup(
+					txt,{maxWidth:(screen.availWidth >= 600 ? 600 : screen.availWidth),className:'site_popup'}
+				).bindTooltip(v.sectorInfo(v.mno,Object.keys(data[i].sectors)),
+				{
+					permanent: true, 
+					direction: 'right'
+				})
 			);
 		}
 		
