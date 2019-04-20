@@ -8,7 +8,7 @@ $start = time();
 
 // Database logins
 DEFINE("DB_USERNAME","root");
-DEFINE("DB_DATABASE","lte_cell_export");
+DEFINE("DB_DATABASE","lte_database");
 DEFINE("DB_PASSWORD","");
 DEFINE("DB_HOSTNAME","localhost");
 DEFINE("DB_TABLE","sectors");
@@ -95,6 +95,8 @@ function averageCoords($sector){
 
 echo "Locating masts...\n";
 
+$db_connection->query("START TRANSACTION");
+
 // Insert back into database
 $ins = $db_connection->prepare("INSERT INTO masts (mnc,enodeb_id,lat,lng,updated) VALUES (?, ?, ?, ?, ?)");
 $ins->bind_param("iissi",$mnc,$eNodeB,$coordLat,$coordLng,$currTime);
@@ -121,6 +123,8 @@ foreach ($eNbList as $mncCode=>$mncData){
 }
 
 $ins->close();
+
+$db_connection->query("COMMIT");
 
 $db_connection->close();
 

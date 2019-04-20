@@ -13,17 +13,9 @@ function cidToEnb($cid){
 	return array(bindec($node),bindec($sector));
 }
 
-function calcPerformance($iter){
-	global $start;
-	
-	$tElapsed = time() - $start;
-	echo "Record " . $iter . ", time elapsed: " . $tElapsed . "\n";
-}
-
 // Settings
 $limitMCC = "234";
 $limitMNC = false;
-$limitRAT = "LTE";
 
 $file = readline("Input File> ");
 
@@ -37,7 +29,7 @@ if (!($fh = fopen($file,"r"))){
 
 // Database logins
 DEFINE("DB_USERNAME","root");
-DEFINE("DB_DATABASE","lte_cell_export");
+DEFINE("DB_DATABASE","lte_database");
 DEFINE("DB_PASSWORD","");
 DEFINE("DB_HOSTNAME","localhost");
 DEFINE("DB_TABLE","sectors");
@@ -50,6 +42,8 @@ if ($db_connection->connect_error) {
 	die("Database connection error.");
 }
 
+$db_connection->query("START TRANSACTION");
+
 $ins = $db_connection->prepare("INSERT INTO " . DB_TABLE . " (cell_id,mnc,enodeb_id,sector_id,pci,lat,lng,samples,created,updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $ins->bind_param("iiiiissiii",$cellId,$mnc,$eNodeB,$sectorId,$pci,$coordLat,$coordLng,$numSamples,$timeCreated,$timeUpdated);
 
@@ -58,13 +52,8 @@ include("uk_networks_filter.php");
 
 // Set variables
 $iter = 0;
-$r = 0;
-$p = 0;
-$v = 0;
-$s = time()+1;
 
 while (($data = fgetcsv($fh)) !== FALSE){
-	if ($limitRAT !== false && $data[0] !== $limitRAT) continue;
 	if ($limitMCC !== false && $data[1] !== $limitMCC) continue;
 	if ($limitMNC !== false && $data[2] !== $limitMNC) continue;
 	
@@ -93,21 +82,13 @@ while (($data = fgetcsv($fh)) !== FALSE){
 	
 	$ins->execute();
 	
-	// Update the "UI"
-	if (time() > $s){
-		$s = time();
-		$v = $p;
-		$p = 0;
-		echo ($v === 0 ? "??" : $v) . " records/sec\n";
-	} else {
-		$p++;
-	}
-	
 	$iter++;
 }
 
 // Clean up memory
 $ins->close();
+
+$db_connection->query("COMMIT");
 
 $r = $db_connection->query("OPTIMIZE TABLE " . DB_TABLE);
 if (!$r){
