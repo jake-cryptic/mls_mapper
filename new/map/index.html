@@ -3,58 +3,106 @@
 	<head>
 	
 		<title>Map Server</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+		<meta content="IE=edge" http-equiv="X-UA-Compatible">
+		<meta content="#1a1a1a" name="theme-color">
 		
-		<style type="text/css">
-		body,html{margin:0;padding:0;font-size:1.1em;font-weight:100;font-family:sans-serif;}
-		select {background:rgba(255,255,255,0.3);color:#1a1a1a !important;border:.25vh solid #1a1a1a;font-size:1.2em;
-		line-height:3vh;height:100%;padding:.4vh;top:0;display:block;float:left;width:33.33%;}
-		#map{height:90vh;z-index:10;transition:.2s opacity ease-in-out;;}
-		.site_popup .leaflet-popup-content-wrapper{font-size:1.2em;background:rgba(255,255,255,0.9) !important;}
-		.loading{opacity:0.5;}.ticket_title{font-weight:600;font-size:1.1em;}.ticket_data{border-bottom:1px solid #1a1a1a;}
-		#opts{z-index:10;height:10vh;}.site_popup_title{font-size:1.6em;font-weight:600;margin:.5em 0 .25em 0;text-align:center;display:block;}
-		.sect{display:block;padding:10px;float:left;background-color:#1a1a1a;color:#fff;}
-		.sect_block{display:block; height: auto; min-height: 2em;}
-		@media screen and (max-width:768px) {select{font-size:1.1em;}}
-		@media screen and (max-width:512px) {select{font-size:1em;}}
-		@media screen and (max-width:468px) {select{font-size:.8em;}#map{height:87.5vh;}#opts{height:12.5vh;}}
-		</style>
+		<link rel="stylesheet" type="text/css" href="assets/styles.css" />
 		
-		<!-- JS Code for map -->
-		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
-		<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<!-- jQuery -->
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+		
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="assets/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<script src="assets/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="assets/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		
+		<!-- Leaflet -->
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
 		
 	</head>
 	<body>
 	
 		<div id="app">
+
 			<div id="opts">
-				<select id="mapNames" onChange='v.changeMap(mapNames)'>
-					<option value='osm'>OpenStreetMap</option>
-					<option value='rdi'>Google Streets</option>
-					<option value='arm'>Google Streets Alt</option>
-					<option value='hyb'>Google Hybrid</option>
-					<option value='ter'>Google Terrain</option>
-					<option value='rdo'>Google Roads Only</option>
-					<option value='tro'>Google Terrain Only</option>
-					<option value='sat'>Google Satellite Only</option>
+				<select id="mapNames" onChange='v.m.change(mapNames)'>
+					<option value='osm'>OSM</option>
+					<option value='rdi'>G Streets</option>
+					<option value='arm'>G Streets Alt</option>
+					<option value='hyb'>G Hybrid</option>
+					<option value='ter'>G Terrain</option>
+					<option value='rdo'>G Roads Only</option>
+					<option value='tro'>G Terrain Only</option>
+					<option value='sat'>G Sat Only</option>
 				</select>
 				<select id="mobileNetwork" onChange='v.changeMno(mobileNetwork)'>
+					<option value='0'>All</option>
 					<option value='10'>O2-UK</option>
 					<option value='15'>Vodafone</option>
 					<option value='20'>Three</option>
 					<option value='30'>EE</option>
 				</select>
-				<select id="mnoSectors" onChange='v.changeSectors(mnoSectors)'>
-					<option value='null'>all</option>
-				</select>
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchPopup">Advanced</button>
 			</div>
+
+			<!-- Settings -->
+			<div class="modal fade" id="searchPopup" tabindex="-1" role="dialog" aria-labelledby="searchPopupLabel" aria-hidden="true">
+				<div class="modal-dialog modal-xl" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="searchPopupLabel">Advanced Search</h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<fieldset>
+								<legend>Find a specific site...</legend>
+								<input type="number" placeholder="Lower eNB ID*" name="adv_enb_lower_bound" id="adv_enb_lower_bound" />
+								<input type="number" placeholder="Upper eNB ID*" name="adv_enb_upper_bound" id="adv_enb_upper_bound" />
+								* Set both in order for this to take effect...
+								<h5> - or - </h5>
+								<input type="number" placeholder="eNodeB ID" name="adv_enb_specific" id="adv_enb_specific" />
+							</fieldset>
+
+							<fieldset>
+								<legend>Map Settings</legend>
+								<label for="adv_load_only_bounds_ne">Constrain NE</label>
+								<input type="checkbox" name="adv_load_only_bounds_ne" id="adv_load_only_bounds_ne" checked />
+								<label for="adv_load_only_bounds_sw">Constrain SW</label>
+								<input type="checkbox" name="adv_load_only_bounds_sw" id="adv_load_only_bounds_sw" checked />
+							</fieldset>
+
+							<fieldset>
+								<legend>Data Quantity (Ignored for now)</legend>
+								<input type="number" placeholder="Max eNBs to load (default:2500)" name="adv_max_num_enb" id="adv_max_num_enb" />
+								<input type="number" placeholder="Max sector count to load (default:36)" name="adv_max_num_sec" id="adv_max_num_sec" />
+							</fieldset>
+
+							<fieldset>
+								<legend>Sectors to show</legend>
+								<label for="adv_load_only_bounds_sector">Constrain to current area</label>
+								<input type="checkbox" name="adv_load_only_bounds_sector" id="adv_load_only_bounds_sector" checked />
+								<div id="sector_list">
+									Not live yet...
+								</div>
+							</fieldset>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-primary" id="advanced_search">Search</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div id="map"></div>
+
 		</div>
 		
-		<script type="text/javascript" src="map.js" defer></script>
+		<script type="text/javascript" src="assets/map-new.js?sect1" defer></script>
 		
 	</body>
 </html>

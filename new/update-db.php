@@ -29,7 +29,7 @@ if (!($fh = fopen($file,"r"))){
 
 // Database logins
 DEFINE("DB_USERNAME","root");
-DEFINE("DB_DATABASE","lte_database");
+DEFINE("DB_DATABASE","lte_cell_export");
 DEFINE("DB_PASSWORD","");
 DEFINE("DB_HOSTNAME","localhost");
 DEFINE("DB_TABLE","sectors");

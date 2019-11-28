@@ -5,7 +5,7 @@ set_time_limit(-1); 				// Remove time limit.
 $start = time();
 $cdb = readline("Input File> ");	// CSV Database (from https://location.services.mozilla.com/downloads)
 $mcc = readline("Requested MCC> ");	
-$rat = readline("Requested RAT> ");	
+$rat = strtoupper(readline("Requested RAT> "));
 
 // Check if data directory exists/can be created
 if (@!mkdir("data")){
@@ -22,7 +22,7 @@ function csv_to_array($filename='', $delimiter=','){
 
     $data = array();
     if (($handle = fopen($filename, 'r')) !== FALSE) {
-        while (($row = fgetcsv($handle, 1000, $delimiter)) !== FALSE){
+        while (($row = fgetcsv($handle, 1250, $delimiter)) !== FALSE){
 			if ($row[0] !== $rat) continue;
             $data[] = $row;
         }

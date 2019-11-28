@@ -63,14 +63,7 @@ print("eNbs for h3:" . count(array_keys($eNbList[20])) . "\n");
 print("eNbs for ee:" . count(array_keys($eNbList[30])) . "\n");
 
 function sampleWeight($samples){
-	if ($samples === 1) 	return 1;
-	if ($samples <= 3) 		return 3;
-	if ($samples <= 7) 		return 4;
-	if ($samples <= 10) 	return 5;
-	if ($samples <= 50) 	return 7;
-	if ($samples <= 100) 	return 11;
-	if ($samples <= 250) 	return 13;
-	return 14;
+	return ceil(log($samples));
 }
 
 function averageCoords($sector){
