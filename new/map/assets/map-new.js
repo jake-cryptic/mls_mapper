@@ -6,6 +6,11 @@ var v = {
 	markers:[],
 	polygons:[],
 
+	attr:{
+		g:'<a href="https://maps.google.co.uk">Google Maps</a>',
+		o:'<a href="http://openstreetmap.org">OpenStreetMap</a>'
+	},
+
 	mncData:{},
 
 	onlySectors:null,
@@ -52,7 +57,10 @@ var v = {
 		v.m.init();
 		v.getMncData();
 
-		$("#advanced_search").on("click enter",v.loadData);
+		$("#advanced_search").on("click enter",function(){
+			$("#searchPopup").modal("hide");
+			v.loadData();
+		});
 	},
 
 	getLocation:function(cb){
@@ -95,30 +103,29 @@ var v = {
 		},
 
 		change:function(map){
-			if (v.base){
-				v.m.map.removeLayer(v.base);
-			}
-			if (map.value === "sat") v.m.initGMap("s");
-			if (map.value === "ter") v.m.initGMap("p");
-			if (map.value === "tro") v.m.initGMap("t");
-			if (map.value === "rdo") v.m.initGMap("h");
-			if (map.value === "rdi") v.m.initGMap("m");
-			if (map.value === "arm") v.m.initGMap("r");
-			if (map.value === "hyb") v.m.initGMap("y");
-			if (map.value === "osm") v.m.initMapOsm();
-		},
+			if (v.base) v.m.map.removeLayer(v.base);
 
-		initGMap:function(l){
+			let maps = {
+				"sat":"s",
+				"ter":"p",
+				"tro":"t",
+				"rdo":"h",
+				"rdi":"m",
+				"arm":"r",
+				"hyb":"y"
+			};
+
+			let server = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+				attr = v.attr.o;
+
+			if (map.value !== "osm"){
+				attr = v.attr.g;
+				server = 'https://mt1.google.com/vt/lyrs=' + maps[map.value] + '&x={x}&y={y}&z={z}';
+			}
+
 			v.base = new L.TileLayer(
-				'https://mt1.google.com/vt/lyrs='+l+'&x={x}&y={y}&z={z}',
-				{attribution: '<a href="https://maps.google.co.uk">Google Maps</a>'}
-			);
-			v.m.map.addLayer(v.base);
-		},
-		initMapOsm:function(){
-			v.base = new L.TileLayer(
-				'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-				{attribution: '<a href="http://openstreetmap.org">OpenStreetMap</a>'}
+				server,
+				{attribution: attr}
 			);
 			v.m.map.addLayer(v.base);
 		},
@@ -130,11 +137,11 @@ var v = {
 		},
 
 		removeMapItems:function(){
-			for (var marker in v.markers){
+			for (let marker in v.markers){
 				v.m.map.removeLayer(v.markers[marker]);
 			}
 
-			for (var polygon in v.polygons){
+			for (let polygon in v.polygons){
 				v.m.map.removeLayer(v.polygons[polygon]);
 			}
 
@@ -152,7 +159,8 @@ var v = {
 
 	getMncData:function(){
 		var reqData = {
-			mcc:v.mcc
+			mcc:v.mcc,
+			mastdb:"masts2"
 		};
 
 		if ($("#adv_load_only_bounds_sector").is(":checked")){
@@ -246,7 +254,8 @@ var v = {
 	getDataParameters:function(){
 		var data = {
 			"limit_m":2500,
-			"limit_s":36
+			"limit_s":36,
+			"mastdb":"masts2"
 		};
 
 		// Coordinate bounds
@@ -373,10 +382,10 @@ var v = {
 			);*/
 		}
 
-		for (var marker in v.markers){
+		for (let marker in v.markers){
 			v.m.map.addLayer(v.markers[marker]);
 		}
-		for (var polygon in v.polygons){
+		for (let polygon in v.polygons){
 			v.m.map.addLayer(v.polygons[polygon]);
 		}
 	}
