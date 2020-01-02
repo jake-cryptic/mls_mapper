@@ -11,7 +11,7 @@ function filter_uk_ee($eNodeB,$sectorId){
 
 function filter_uk_h3g($eNodeB,$sectorId){
 	// Allow for 3's small cells
-	if ($eNodeB > 50000 && $eNodeB < 50500){
+	if ($eNodeB >= 50000 && $eNodeB < 50500){
 		$allowedSectors = array(16);
 		if (!in_array($sectorId,$allowedSectors)){
 			return false;

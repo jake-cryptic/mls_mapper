@@ -81,7 +81,7 @@ var v = {
 			v.m.map = L.map('map').setView([52.5201508,-1.5807446], v.m.zoom);
 			v.m.map.addEventListener('contextmenu',v.m.mapMove);
 
-			v.m.initMapOsm();
+			v.m.change({value:"rdi"});
 			v.m.initIcons();
 
 			v.getLocation(function(lat, lon){
@@ -90,7 +90,7 @@ var v = {
 		},
 
 		initIcons:function(){
-			var techIcon = L.Icon.extend({
+			let techIcon = L.Icon.extend({
 				options: {
 					iconSize:[25,41],
 					iconAnchor:[12.5,41],
@@ -123,10 +123,7 @@ var v = {
 				server = 'https://mt1.google.com/vt/lyrs=' + maps[map.value] + '&x={x}&y={y}&z={z}';
 			}
 
-			v.base = new L.TileLayer(
-				server,
-				{attribution: attr}
-			);
+			v.base = new L.TileLayer(server, {attribution: attr});
 			v.m.map.addLayer(v.base);
 		},
 
