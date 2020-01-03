@@ -48,8 +48,8 @@ function filter_uk_vf($eNodeB,$sectorId){
 	if ($eNodeB > 18000 && $eNodeB < 500000) return false;
 	if ($eNodeB > 560000) return false;
 	
-	// Discard sector IDs above 80
-	if ($sectorId < 10 && $sectorId > 80) return false;
+	// Discard sector IDs above 70
+	if ($sectorId < 10 && $sectorId > 70) return false;
 	
 	return true;
 }

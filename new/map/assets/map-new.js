@@ -1,7 +1,7 @@
 var v = {
 	mLimit: 5000,
 	sLimit: 36,
-	mno: 10,
+	mno: 0,
 	mcc: 234,
 	markers: [],
 	polygons: [],
@@ -13,7 +13,6 @@ var v = {
 
 	mncData: {},
 
-	onlySectors: null,
 	cData: {
 		10: {
 			"L08": [110, 120, 130, 140, 150, 160],
@@ -150,7 +149,7 @@ var v = {
 	changeMno: function (mno) {
 		v.mno = parseInt(mno.value);
 		v.m.removeMapItems();
-		v.genOptions();
+		v.updateMncOpts();
 		v.loadData();
 	},
 
@@ -182,28 +181,39 @@ var v = {
 
 	updateMncData: function (data) {
 		v.mncData = data;
-
-		$container = $("#sector_list");
-		for (let i = 0, l = Object.keys(v.mncData).length; i < l; i++) {
-			let mncSectors = v.mncData[Object.keys(v.mncData)[i]];
-
-			console.log(mncSectors);
-		}
+		v.updateMncOpts();
 	},
 
-	genOptions: function () {
-		v.onlySectors = null;
+	updateMncOpts:function(){
+		let $cont = $("#sector_list");
+		$cont.empty();
 
-		$("#mnoSectors").empty().append(
-			$("<select/>", {"value": "null", "selected": true}).text("All")
-		);
-
-		var mnoData = Object.keys(v.cData[v.mno]);
-		console.log(mnoData);
-		for (var i = 0; i < mnoData.length; i++) {
-			$("#mnoSectors").append(
-				$("<select/>", {"value": mnoData[i]}).text(mnoData[i])
+		if (v.mno === 0){
+			$cont.append(
+				$("<h2/>").append("Select a specific operator to change sector IDs shown.")
 			);
+			return;
+		}
+
+		let keys = Object.keys(v.mncData);
+		for (let i = 0, l = keys.length; i < l; i++) {
+			let mncSectors = v.mncData[keys[i]];
+			if (parseInt(keys[i]) !== v.mno) continue;
+
+			$cont.append($("<strong/>").text(keys[i]));
+
+			for (let j = 0, k = mncSectors.length; j < k; j++){
+				if (j % 5 === 0) $cont.append($("<br />"));
+
+				$cont.append(
+					$("<label/>").text(mncSectors[j] + " "),
+					$("<input/>",{
+						"type":"checkbox",
+						"name":"sectors[]",
+						"value":mncSectors[j]
+					})
+				);
+			}
 		}
 	},
 
@@ -234,6 +244,7 @@ var v = {
 		} else if (mno === 20) {
 			if (v.findItem(sectors, [71, 72, 73, 74, 75, 76])) ret += "1 ";
 			if (v.findItem(sectors, [0, 1, 2, 3, 4, 5])) ret += "3 ";
+			if (v.findItem(sectors, [16])) ret += "3SC ";
 			if (v.findItem(sectors, [6, 7, 8])) ret += "20";
 		} else if (mno === 30) {
 			if (v.findItem(sectors, [18, 19, 20])) ret += "1 ";
@@ -283,9 +294,12 @@ var v = {
 			data["enb"] = $("#adv_enb_specific").val();
 		}
 
-		// Specific eNB
-		if ($("#adv_enb_specific").val().length !== 0) {
-			data["enb"] = $("#adv_enb_specific").val();
+		// Specific sectors
+		if ($("input[type='checkbox'][name='sectors[]']").serialize().length !== 0){
+			let sectors = $("input[type='checkbox'][name='sectors[]']").serializeArray();
+			data["sectors"] = sectors.map(function(x){
+				return parseInt(x.value);
+			});
 		}
 
 		data["mnc"] = $("#mobileNetwork").val();
@@ -331,6 +345,8 @@ var v = {
 	},
 
 	viewData: function (data) {
+		$("#results_tbl").empty();
+
 		for (let i = 0; i < data.length; i++) {
 			v.addPointToMap(data[i]);
 			v.addPointToTable(data[i]);
@@ -401,8 +417,30 @@ var v = {
 		);*/
 	},
 
-	addPointToTable: function () {
+	addPointToTable: function (point) {
+		let $r = $("#results_tbl");
 
+		function getSectors(){
+			return Object.keys(point.sectors).join(", ");
+		}
+
+		$r.append(
+			$("<tr/>").append(
+				$("<td/>").text(point.mnc),
+				$("<td/>").text(point.id),
+				$("<td/>").text(getSectors()),
+				$("<td/>").append(
+					$("<button/>",{
+						"data-lat":point.lat,
+						"data-lng":point.lng
+					}).text("View").on("click enter",v.goToHereData)
+				)
+			)
+		);
+	},
+
+	goToHereData:function(){
+		v.m.map.setView([$(this).data("lat"), $(this).data("lng")], 18);
 	}
 };
 

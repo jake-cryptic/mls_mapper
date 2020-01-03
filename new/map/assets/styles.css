@@ -32,13 +32,27 @@ select {
 	display:block;
 	position:absolute;
 	float:left;
-	height:calc(99.5vh - 4em - 9%);
+	height:calc(99.5vh - 4em - 4.5%);
 	z-index: 15;
 	width:15%;
 	margin:2% 80%;
-	padding:2.5%;
+	padding:0.25%;
 	background-color:rgba(255,255,255,0.7);
 	overflow-y:scroll;
+}
+
+table {
+	width:100%;
+}
+
+table tr:nth-child(2n) {
+	border-bottom: 1px solid #000;
+}
+table tr:nth-child(2n-1) {
+	border-bottom: 1px solid #1a1a1a;
+}
+tr td:nth-child(2){
+	font-weight:900;
 }
 
 .site_popup .leaflet-popup-content-wrapper {
