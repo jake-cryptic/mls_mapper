@@ -1,124 +1,124 @@
 var v = {
-	mLimit:5000,
-	sLimit:36,
-	mno:10,
-	mcc:234,
-	markers:[],
-	polygons:[],
+	mLimit: 5000,
+	sLimit: 36,
+	mno: 10,
+	mcc: 234,
+	markers: [],
+	polygons: [],
 
-	attr:{
-		g:'<a href="https://maps.google.co.uk">Google Maps</a>',
-		o:'<a href="http://openstreetmap.org">OpenStreetMap</a>'
+	attr: {
+		g: '<a href="https://maps.google.co.uk">Google Maps</a>',
+		o: '<a href="http://openstreetmap.org">OpenStreetMap</a>'
 	},
 
-	mncData:{},
+	mncData: {},
 
-	onlySectors:null,
-	cData:{
-		10:{
-			"L08":[110,120,130,140,150,160],
-			"L18":[114,124,134,144,154,164],
-			"L21":[115,125,135,145,155,165],
-			"L23-C1":[116,126,136,146,156,166],
-			"L23-C2":[117,127,137,147,157,167]
+	onlySectors: null,
+	cData: {
+		10: {
+			"L08": [110, 120, 130, 140, 150, 160],
+			"L18": [114, 124, 134, 144, 154, 164],
+			"L21": [115, 125, 135, 145, 155, 165],
+			"L23-C1": [116, 126, 136, 146, 156, 166],
+			"L23-C2": [117, 127, 137, 147, 157, 167]
 		},
-		15:{
-			"L08":[10,20,30,40,50,60],
-			"L09":[12,22,32],
-			"L18":[16,26,36,46,56,66],
-			"L21":[14,24,34,44,54,64,15,25,35],
-			"L26":[18,28,38,48,58,68],
-			"L26T":[19,29,39]
+		15: {
+			"L08": [10, 20, 30, 40, 50, 60],
+			"L09": [12, 22, 32],
+			"L18": [16, 26, 36, 46, 56, 66],
+			"L21": [14, 24, 34, 44, 54, 64, 15, 25, 35],
+			"L26": [18, 28, 38, 48, 58, 68],
+			"L26T": [19, 29, 39]
 		},
-		20:{
-			"L18":[0,1,2,3,4,5],
-			"L08":[6,7,8],
-			"L21":[71,72,73,74,75,76]
+		20: {
+			"L18": [0, 1, 2, 3, 4, 5],
+			"L08": [6, 7, 8],
+			"L21": [71, 72, 73, 74, 75, 76]
 		},
-		30:{
-			"L18":[0,1,2],
-			"L18-C2":[3,4,5],
-			"L26-C1":[6,7,8],
-			"L26-C2":[9,10,11],
-			"L26-C3":[15,16,17],
-			"L08":[12,13,14],
-			"L21":[18,19,20]
+		30: {
+			"L18": [0, 1, 2],
+			"L18-C2": [3, 4, 5],
+			"L26-C1": [6, 7, 8],
+			"L26-C2": [9, 10, 11],
+			"L26-C3": [15, 16, 17],
+			"L08": [12, 13, 14],
+			"L21": [18, 19, 20]
 		}
 	},
-	
-	sData:{
-		10:JSON.parse('{"110":"L08","114":"L18","115":"L21","116":"L23-C1","117":"L23-C2","120":"L08","124":"L18","125":"L21","126":"L23-C1","127":"L23-C2","130":"L08","134":"L18","135":"L21","136":"L23-C1","137":"L23-C2","140":"L08","144":"L18","145":"L21","146":"L23-C1","147":"L23-C2","150":"L08","154":"L18","155":"L21","156":"L23-C1","157":"L23-C2","160":"L08","164":"L18","165":"L21","166":"L23-C1","167":"L23-C2"}'),
-		15:JSON.parse('{"10":"L08","12":"L09","14":"L21","15":"L21","16":"L18","18":"L26","19":"L26T","20":"L08","22":"L09","24":"L21","25":"L21","26":"L18","28":"L26","29":"L26T","30":"L08","32":"L09","34":"L21","35":"L21","36":"L18","38":"L26","39":"L26T","40":"L08","44":"L21","46":"L18","48":"L26","50":"L08","54":"L21","56":"L18","58":"L26","60":"L08","64":"L21","66":"L18","68":"L26"}'),
-		20:JSON.parse('{"0":"L18","1":"L18","2":"L18","3":"L18","4":"L18","5":"L18","6":"L08","7":"L08","8":"L08","71":"L21","72":"L21","73":"L21","74":"L21","75":"L21","76":"L21"}'),
-		30:JSON.parse('{"0":"L18","1":"L18","2":"L18","3":"L18-C2","4":"L18-C2","5":"L18-C2","6":"L26-C1","7":"L26-C1","8":"L26-C1","9":"L26-C2","10":"L26-C2","11":"L26-C2","12":"L08","13":"L08","14":"L08","15":"L26-C3","16":"L26-C3","17":"L26-C3","18":"L21","19":"L21","20":"L21"}')
+
+	sData: {
+		10: JSON.parse('{"110":"L08","114":"L18","115":"L21","116":"L23-C1","117":"L23-C2","120":"L08","124":"L18","125":"L21","126":"L23-C1","127":"L23-C2","130":"L08","134":"L18","135":"L21","136":"L23-C1","137":"L23-C2","140":"L08","144":"L18","145":"L21","146":"L23-C1","147":"L23-C2","150":"L08","154":"L18","155":"L21","156":"L23-C1","157":"L23-C2","160":"L08","164":"L18","165":"L21","166":"L23-C1","167":"L23-C2"}'),
+		15: JSON.parse('{"10":"L08","12":"L09","14":"L21","15":"L21","16":"L18","18":"L26","19":"L26T","20":"L08","22":"L09","24":"L21","25":"L21","26":"L18","28":"L26","29":"L26T","30":"L08","32":"L09","34":"L21","35":"L21","36":"L18","38":"L26","39":"L26T","40":"L08","44":"L21","46":"L18","48":"L26","50":"L08","54":"L21","56":"L18","58":"L26","60":"L08","64":"L21","66":"L18","68":"L26"}'),
+		20: JSON.parse('{"0":"L18","1":"L18","2":"L18","3":"L18","4":"L18","5":"L18","6":"L08","7":"L08","8":"L08","71":"L21","72":"L21","73":"L21","74":"L21","75":"L21","76":"L21"}'),
+		30: JSON.parse('{"0":"L18","1":"L18","2":"L18","3":"L18-C2","4":"L18-C2","5":"L18-C2","6":"L26-C1","7":"L26-C1","8":"L26-C1","9":"L26-C2","10":"L26-C2","11":"L26-C2","12":"L08","13":"L08","14":"L08","15":"L26-C3","16":"L26-C3","17":"L26-C3","18":"L21","19":"L21","20":"L21"}')
 	},
-	
-	init:function(){
+
+	init: function () {
 		v.m.init();
 		v.getMncData();
 
-		$("#advanced_search").on("click enter",function(){
+		$("#advanced_search").on("click enter", function () {
 			$("#searchPopup").modal("hide");
 			v.loadData();
 		});
 	},
 
-	getLocation:function(cb){
-		navigator.geolocation.getCurrentPosition(function(position) {
+	getLocation: function (cb) {
+		navigator.geolocation.getCurrentPosition(function (position) {
 			cb(position.coords.latitude, position.coords.longitude);
 		});
 	},
 
-	m:{
-		zoom:10,
-		map:null,
-		ico:{
-			main:null,
-			multiple:null
+	m: {
+		zoom: 10,
+		map: null,
+		ico: {
+			main: null,
+			multiple: null
 		},
 
-		init:function(){
-			v.m.map = L.map('map').setView([52.5201508,-1.5807446], v.m.zoom);
-			v.m.map.addEventListener('contextmenu',v.m.mapMove);
+		init: function () {
+			v.m.map = L.map('map').setView([52.5201508, -1.5807446], v.m.zoom);
+			v.m.map.addEventListener('contextmenu', v.m.mapMove);
 
-			v.m.change({value:"rdi"});
+			v.m.change({value: "rdi"});
 			v.m.initIcons();
 
-			v.getLocation(function(lat, lon){
+			v.getLocation(function (lat, lon) {
 				v.m.map.setView([lat, lon], v.m.zoom);
 			});
 		},
 
-		initIcons:function(){
+		initIcons: function () {
 			let techIcon = L.Icon.extend({
 				options: {
-					iconSize:[25,41],
-					iconAnchor:[12.5,41],
-					popupAnchor:[0,-28]
+					iconSize: [25, 41],
+					iconAnchor: [12.5, 41],
+					popupAnchor: [0, -28]
 				}
 			});
 
-			v.m.ico.main		= new techIcon({iconUrl: 'img/marker-default.png'});
-			v.m.ico.multiple	= new techIcon({iconUrl: 'img/marker-multiple.png'});
+			v.m.ico.main = new techIcon({iconUrl: 'img/marker-default.png'});
+			v.m.ico.multiple = new techIcon({iconUrl: 'img/marker-multiple.png'});
 		},
 
-		change:function(map){
+		change: function (map) {
 			if (v.base) v.m.map.removeLayer(v.base);
 
 			let maps = {
-				"sat":"s",
-				"ter":"p",
-				"tro":"t",
-				"rdo":"h",
-				"rdi":"m",
-				"arm":"r",
-				"hyb":"y"
+				"sat": "s",
+				"ter": "p",
+				"tro": "t",
+				"rdo": "h",
+				"rdi": "m",
+				"arm": "r",
+				"hyb": "y"
 			};
 
 			let server = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 				attr = v.attr.o;
 
-			if (map.value !== "osm"){
+			if (map.value !== "osm") {
 				attr = v.attr.g;
 				server = 'https://mt1.google.com/vt/lyrs=' + maps[map.value] + '&x={x}&y={y}&z={z}';
 			}
@@ -127,18 +127,18 @@ var v = {
 			v.m.map.addLayer(v.base);
 		},
 
-		mapMove:function(evt){
+		mapMove: function (evt) {
 			console.log(evt);
 			v.m.removeMapItems();
 			v.loadData();
 		},
 
-		removeMapItems:function(){
-			for (let marker in v.markers){
+		removeMapItems: function () {
+			for (let marker in v.markers) {
 				v.m.map.removeLayer(v.markers[marker]);
 			}
 
-			for (let polygon in v.polygons){
+			for (let polygon in v.polygons) {
 				v.m.map.removeLayer(v.polygons[polygon]);
 			}
 
@@ -146,124 +146,124 @@ var v = {
 			v.markers = [];
 		}
 	},
-	
-	changeMno:function(mno){
+
+	changeMno: function (mno) {
 		v.mno = parseInt(mno.value);
 		v.m.removeMapItems();
 		v.genOptions();
 		v.loadData();
 	},
 
-	getMncData:function(){
+	getMncData: function () {
 		var reqData = {
-			mcc:v.mcc,
-			mastdb:"masts2"
+			mcc: v.mcc,
+			mastdb: "masts2"
 		};
 
-		if ($("#adv_load_only_bounds_sector").is(":checked")){
+		if ($("#adv_load_only_bounds_sector").is(":checked")) {
 			let bounds = v.m.map.getBounds();
-			reqData["nelat"] = round(bounds._northEast.lat,9);
-			reqData["nelng"] = round(bounds._northEast.lng,9);
-			reqData["swlat"] = round(bounds._southWest.lat,9);
-			reqData["swlng"] = round(bounds._southWest.lng,9);
+			reqData["nelat"] = round(bounds._northEast.lat, 9);
+			reqData["nelng"] = round(bounds._northEast.lng, 9);
+			reqData["swlat"] = round(bounds._southWest.lat, 9);
+			reqData["swlng"] = round(bounds._southWest.lng, 9);
 		}
 
 		$.ajax({
-			url:'api/get-mnc.php',
-			type:'GET',
-			data:reqData,
-			dataType:'json',
-			success:v.updateMncData,
-			error:function(e){
+			url: 'api/get-mnc.php',
+			type: 'GET',
+			data: reqData,
+			dataType: 'json',
+			success: v.updateMncData,
+			error: function (e) {
 				console.error(e);
 			}
 		});
 	},
 
-	updateMncData:function(data){
+	updateMncData: function (data) {
 		v.mncData = data;
 
 		$container = $("#sector_list");
-		for (let i = 0, l = Object.keys(v.mncData).length; i < l; i++){
+		for (let i = 0, l = Object.keys(v.mncData).length; i < l; i++) {
 			let mncSectors = v.mncData[Object.keys(v.mncData)[i]];
 
 			console.log(mncSectors);
 		}
 	},
-	
-	genOptions:function(){
+
+	genOptions: function () {
 		v.onlySectors = null;
-		
+
 		$("#mnoSectors").empty().append(
-			$("<select/>",{"value":"null","selected":true}).text("All")
+			$("<select/>", {"value": "null", "selected": true}).text("All")
 		);
-		
+
 		var mnoData = Object.keys(v.cData[v.mno]);
 		console.log(mnoData);
-		for (var i = 0;i<mnoData.length;i++){
+		for (var i = 0; i < mnoData.length; i++) {
 			$("#mnoSectors").append(
-				$("<select/>",{"value":mnoData[i]}).text(mnoData[i])
+				$("<select/>", {"value": mnoData[i]}).text(mnoData[i])
 			);
 		}
 	},
-	
-	findItem:function(arr1,arr2){
-		for (let i = 0;i<arr2.length;i++){
+
+	findItem: function (arr1, arr2) {
+		for (let i = 0; i < arr2.length; i++) {
 			if (arr1.indexOf(arr2[i].toString()) !== -1) return true;
 		}
 		return false;
 	},
-	
-	sectorInfo:function(mno,enb,sectors){
+
+	sectorInfo: function (mno, enb, sectors) {
 		var ret = "<strong>" + enb + "</strong>: ";
-		if (mno === 10){
-			if (v.findItem(sectors,[115,125,135,145,155,165])) ret += "1 ";
-			if (v.findItem(sectors,[114,124,134,144,154,164])) ret += (enb >= 500000 ? "3 " : "1 ");
-			if (v.findItem(sectors,[110,120,130,140,150,160])) ret += "20 ";
-			if (v.findItem(sectors,[112,122,132])) ret += "8 ";
-			if (v.findItem(sectors,[116,126,136,146,156,166])) ret += (enb >= 500000 ? "40C1 " : "3 ");
-			if (v.findItem(sectors,[117,127,137,147,157,167])) ret += "40C2";
-		} else if (mno === 15){
-			if (v.findItem(sectors,[15,25,35,45,55,65])) ret += "1 ";
-			if (v.findItem(sectors,[14,24,34,44,54,64])) ret += "1 ";
-			if (v.findItem(sectors,[16,26,36,46,56,66])) ret += "3 ";
-			if (v.findItem(sectors,[18,28,38,48,58,68])) ret += "7 ";
-			if (v.findItem(sectors,[12,22,32])) ret += "8 ";
-			if (v.findItem(sectors,[10,20,30,40,50,60])) ret += "20 ";
-			if (v.findItem(sectors,[19,29,39,49,59,69])) ret += "38";
-		} else if (mno === 20){
-			if (v.findItem(sectors,[71,72,73,74,75,76])) ret += "1 ";
-			if (v.findItem(sectors,[0,1,2,3,4,5])) ret += "3 ";
-			if (v.findItem(sectors,[6,7,8])) ret += "20";
+		if (mno === 10) {
+			if (v.findItem(sectors, [115, 125, 135, 145, 155, 165])) ret += "1 ";
+			if (v.findItem(sectors, [114, 124, 134, 144, 154, 164])) ret += (enb >= 500000 ? "3 " : "1 ");
+			if (v.findItem(sectors, [110, 120, 130, 140, 150, 160])) ret += "20 ";
+			if (v.findItem(sectors, [112, 122, 132])) ret += "8 ";
+			if (v.findItem(sectors, [116, 126, 136, 146, 156, 166])) ret += (enb >= 500000 ? "40C1 " : "3 ");
+			if (v.findItem(sectors, [117, 127, 137, 147, 157, 167])) ret += "40C2";
+		} else if (mno === 15) {
+			if (v.findItem(sectors, [15, 25, 35, 45, 55, 65])) ret += "1 ";
+			if (v.findItem(sectors, [14, 24, 34, 44, 54, 64])) ret += "1 ";
+			if (v.findItem(sectors, [16, 26, 36, 46, 56, 66])) ret += "3 ";
+			if (v.findItem(sectors, [18, 28, 38, 48, 58, 68])) ret += "7 ";
+			if (v.findItem(sectors, [12, 22, 32])) ret += "8 ";
+			if (v.findItem(sectors, [10, 20, 30, 40, 50, 60])) ret += "20 ";
+			if (v.findItem(sectors, [19, 29, 39, 49, 59, 69])) ret += "38";
+		} else if (mno === 20) {
+			if (v.findItem(sectors, [71, 72, 73, 74, 75, 76])) ret += "1 ";
+			if (v.findItem(sectors, [0, 1, 2, 3, 4, 5])) ret += "3 ";
+			if (v.findItem(sectors, [6, 7, 8])) ret += "20";
 		} else if (mno === 30) {
-			if (v.findItem(sectors,[18,19,20])) ret += "1 ";
-			if (v.findItem(sectors,[15,16,17])) ret += "7T ";
-			if (v.findItem(sectors,[0,1,2])) ret += "3P ";
-			if (v.findItem(sectors,[3,4,5])) ret += "3S ";
-			if (v.findItem(sectors,[6,7,8])) ret += "7P ";
-			if (v.findItem(sectors,[9,10,11])) ret += "7S ";
-			if (v.findItem(sectors,[12,13,14])) ret += "20";
+			if (v.findItem(sectors, [18, 19, 20])) ret += "1 ";
+			if (v.findItem(sectors, [15, 16, 17])) ret += "7T ";
+			if (v.findItem(sectors, [0, 1, 2])) ret += "3P ";
+			if (v.findItem(sectors, [3, 4, 5])) ret += "3S ";
+			if (v.findItem(sectors, [6, 7, 8])) ret += "7P ";
+			if (v.findItem(sectors, [9, 10, 11])) ret += "7S ";
+			if (v.findItem(sectors, [12, 13, 14])) ret += "20";
 		}
-		
+
 		return ret;
 	},
 
-	getDataParameters:function(){
+	getDataParameters: function () {
 		var data = {
-			"limit_m":2500,
-			"limit_s":36,
-			"mastdb":"masts2"
+			"limit_m": 2500,
+			"limit_s": 36,
+			"mastdb": "masts2"
 		};
 
 		// Coordinate bounds
 		let bounds = v.m.map.getBounds();
-		if ($("#adv_load_only_bounds_ne").is(":checked")){
-			data["nelat"] = round(bounds._northEast.lat,12);
-			data["nelng"] = round(bounds._northEast.lng,12);
+		if ($("#adv_load_only_bounds_ne").is(":checked")) {
+			data["nelat"] = round(bounds._northEast.lat, 12);
+			data["nelng"] = round(bounds._northEast.lng, 12);
 		}
-		if ($("#adv_load_only_bounds_sw").is(":checked")){
-			data["swlat"] = round(bounds._southWest.lat,12);
-			data["swlng"] = round(bounds._southWest.lng,12);
+		if ($("#adv_load_only_bounds_sw").is(":checked")) {
+			data["swlat"] = round(bounds._southWest.lat, 12);
+			data["swlng"] = round(bounds._southWest.lng, 12);
 		}
 
 		// Limits
@@ -271,7 +271,7 @@ var v = {
 		if ($("#adv_max_num_sec").val()) data["limit_s"] = $("#adv_max_num_sec").val();
 
 		// eNB range
-		if ($("#adv_enb_lower_bound").val().length !== 0 && $("#adv_enb_upper_bound").val().length !== 0){
+		if ($("#adv_enb_lower_bound").val().length !== 0 && $("#adv_enb_upper_bound").val().length !== 0) {
 			data["enb_range"] = [
 				$("#adv_enb_lower_bound").val(),
 				$("#adv_enb_upper_bound").val()
@@ -279,12 +279,12 @@ var v = {
 		}
 
 		// Specific eNB
-		if ($("#adv_enb_specific").val().length !== 0){
+		if ($("#adv_enb_specific").val().length !== 0) {
 			data["enb"] = $("#adv_enb_specific").val();
 		}
 
 		// Specific eNB
-		if ($("#adv_enb_specific").val().length !== 0){
+		if ($("#adv_enb_specific").val().length !== 0) {
 			data["enb"] = $("#adv_enb_specific").val();
 		}
 
@@ -293,98 +293,116 @@ var v = {
 		return data;
 	},
 
-	loadData:function(){
+	loadData: function () {
 		$.ajax({
-			url:'api/lookup-enb.php',
-			type:'GET',
-			data:v.getDataParameters(),
-			dataType:'json',
-			success:v.viewData,
-			error:function(e){
+			url: 'api/lookup-enb.php',
+			type: 'GET',
+			data: v.getDataParameters(),
+			dataType: 'json',
+			success: v.viewData,
+			error: function (e) {
 				console.error(e);
 			}
 		});
 	},
 
-	getPopupText:function(enb, mnc, lat, lng){
+	getPopupText: function (enb, mnc, lat, lng) {
 		let t = enb;
 
-		t += '<br /><strong>Lat:</strong><input type="text" readonly value="'+lat+'" />';
-		t += '<br /><strong>Lon:</strong><input type="text" readonly value="'+lng+'" />';
+		t += '<br /><strong>Lat:</strong><input type="text" readonly value="' + lat + '" />';
+		t += '<br /><strong>Lon:</strong><input type="text" readonly value="' + lng + '" />';
 		t += '<br />View area on:';
-		t += '<br /><a href="https://www.google.co.uk/maps/search/'+lat+','+lng+'/" target="_blank">Google Maps</a>';
-		t += '<br /><a href="https://www.cellmapper.net/map?MCC=234&MNC='+mnc+'&type=LTE&latitude='+lat+'&longitude='+lng+'&zoom=16&clusterEnabled=false" target="_blank">Cell Mapper</a>';
+		t += '<br /><a href="https://www.google.co.uk/maps/search/' + lat + ',' + lng + '/" target="_blank">Google Maps</a>';
+		t += '<br /><a href="https://www.cellmapper.net/map?MCC=234&MNC=' + mnc + '&type=LTE&latitude=' + lat + '&longitude=' + lng + '&zoom=16&clusterEnabled=false" target="_blank">Cell Mapper</a>';
 
 		return t;
 	},
 
-	getSectorText:function(){
+	getSectorText: function () {
 
 	},
 
-	getSectorColor:function(mnc, sector){
+	getSectorColor: function (mnc, sector) {
 		let sectorName = v.sData[mnc][sector];
 		let sectorId = mnc.toString() + sectorName;
 		let sectorMD5 = MD5(sectorId);
 
-		return '#' + sectorMD5.substring(0,6);
+		return '#' + sectorMD5.substring(0, 6);
 	},
 
-	viewData:function(data){
-		for (let i = 0;i<data.length;i++){
-			let tLat = data[i].lat;
-			let tLng = data[i].lng;
+	viewData: function (data) {
+		for (let i = 0; i < data.length; i++) {
+			v.addPointToMap(data[i]);
+			v.addPointToTable(data[i]);
+		}
 
-			let marker = v.m.ico.main;
-			let txt = v.getPopupText(data[i].id, data[i].mnc, tLat, tLng);
+		// Display items on map
+		v.markers.forEach(function (marker) {
+			v.m.map.addLayer(marker);
+		});
+		v.polygons.forEach(function (polygon) {
+			v.m.map.addLayer(polygon);
+		});
+	},
 
-			sectCoords = [];
-			txt += "<div class='sect_block'>";
-			for (let s in data[i].sectors){
-				let color = v.getSectorColor(data[i].mnc, s);
+	addPointToMap: function (point) {
+		let tLat = point.lat;
+		let tLng = point.lng;
+		let tEnb = point.id;
 
-				txt += "<span class='sect' style='background-color:"+color+"'>" + s + "</span>";
+		let markerPopOpts = {
+			maxWidth: (screen.availWidth >= 600 ? 600 : screen.availWidth),
+			className: 'site_popup'
+		};
 
-				//sectCoords.push([data[i].sectors[s][0], data[i].sectors[s][1]]);
+		let markerToolOpts = {
+			permanent: true,
+			direction: 'bottom'
+		};
 
-				v.polygons.push(
-					L.polygon(
-						[
-							[tLat, tLng],
-							[parseFloat(data[i].sectors[s][0]), parseFloat(data[i].sectors[s][1])]
-						],
-						{color: color}
-					)
-				);
-			}
-			txt += "</div>";
-
-			v.markers.push(
-				new L.marker(
-					[tLat,tLng],
-					{icon:marker}
-				).bindPopup(
-					txt,{maxWidth:(screen.availWidth >= 600 ? 600 : screen.availWidth),className:'site_popup'}
-				).bindTooltip(
-					v.sectorInfo(parseInt(data[i].mnc),data[i].id,Object.keys(data[i].sectors)),
-					{
-						permanent: true,
-						direction: 'bottom'
-					}
+		function pushPolygon(siteloc, sectorloc, color) {
+			v.polygons.push(
+				L.polygon(
+					[siteloc, sectorloc],
+					{color: color}
 				)
 			);
-
-			/*v.polygons.push(
-				L.polygon(sectCoords, {color: 'red'})
-			);*/
 		}
 
-		for (let marker in v.markers){
-			v.m.map.addLayer(v.markers[marker]);
+		function pushMarker(siteloc, poptext, tooltext) {
+			v.markers.push(
+				new L.marker(
+					siteloc, {icon: v.m.ico.main}
+				).bindPopup(
+					poptext, markerPopOpts
+				).bindTooltip(
+					tooltext, markerToolOpts
+				)
+			);
 		}
-		for (let polygon in v.polygons){
-			v.m.map.addLayer(v.polygons[polygon]);
+
+		let txt = v.getPopupText(tEnb, point.mnc, tLat, tLng);
+
+		//sectCoords = [];
+		txt += "<div class='sect_block'>";
+		for (let s in point.sectors) {
+			let color = v.getSectorColor(point.mnc, s);
+
+			txt += "<span class='sect' style='background-color:" + color + "'>" + s + "</span>";
+
+			//sectCoords.push([point.sectors[s][0], point.sectors[s][1]]);
+			pushPolygon([tLat, tLng], [parseFloat(point.sectors[s][0]), parseFloat(point.sectors[s][1])], color);
 		}
+		txt += "</div>";
+
+		pushMarker([tLat, tLng], txt, v.sectorInfo(parseInt(point.mnc), tEnb, Object.keys(point.sectors)));
+		/*v.polygons.push(
+			L.polygon(sectCoords, {color: 'red'})
+		);*/
+	},
+
+	addPointToTable: function () {
+
 	}
 };
 
