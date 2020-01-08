@@ -40,6 +40,11 @@ function filter_uk_o2($eNodeB,$sectorId){
 	// Discard sector IDs below 110 and above 170
 	if ($sectorId < 110 || $sectorId > 170) return false;
 	
+	$disallowedSectors = array(1,3,8,9);
+	if (in_array(substr($sectorId, -1),$disallowedSectors)){
+		return false;
+	}
+	
 	return true;
 }
 
