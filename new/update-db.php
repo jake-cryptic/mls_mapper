@@ -15,7 +15,7 @@ function cidToEnb($cid){
 
 // Settings
 $limitMCC = "234";
-$limitMNC = false;
+$validMNCs = array(10,15,20,30);
 
 $file = readline("Input File> ");
 
@@ -55,16 +55,15 @@ $iter = 0;
 
 while (($data = fgetcsv($fh)) !== FALSE){
 	if ($limitMCC !== false && $data[1] !== $limitMCC) continue;
-	if ($limitMNC !== false && $data[2] !== $limitMNC) continue;
 	
 	$mnc = intval($data[2]);
 	
-	if (!in_array($mnc,array(10,15,20,30))) continue;
+	if (!in_array($mnc,$validMNCs)) continue;
 	
 	$cellInfo = cidToEnb($data[4]);
 	
 	if ($uk_filter_map[$mnc]($cellInfo[0],$cellInfo[1]) === false){
-		echo "Sector ID issue MNC " . $data[2] . " eNb:" . $cellInfo[0] . " Sector:" . $cellInfo[1] . "\n";
+		echo "Sector issue MNC " . $data[2] . " eNb:" . $cellInfo[0] . " Sector:" . $cellInfo[1] . "\n";
 		continue;
 	}
 	
@@ -84,6 +83,8 @@ while (($data = fgetcsv($fh)) !== FALSE){
 	
 	$iter++;
 }
+
+echo "Committing data... Do not close this program";
 
 // Clean up memory
 $ins->close();
