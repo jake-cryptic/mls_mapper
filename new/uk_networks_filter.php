@@ -4,7 +4,7 @@ function filter_uk_ee($eNodeB,$sectorId){
 	// Discard eNB IDs that aren't between 10,000 - 50,000
 	if ($eNodeB > 40000 || $eNodeB < 10000) return false;
 	
-	if($sectorId > 21) return false;
+	if($sectorId >= 21) return false;
 	
 	return true;
 }
@@ -55,6 +55,11 @@ function filter_uk_vf($eNodeB,$sectorId){
 	
 	// Discard sector IDs above 70
 	if ($sectorId < 10 && $sectorId > 70) return false;
+	
+	$disallowedSectors = array(1,3);
+	if (in_array(substr($sectorId, -1),$disallowedSectors)){
+		return false;
+	}
 	
 	return true;
 }
