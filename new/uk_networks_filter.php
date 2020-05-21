@@ -38,7 +38,7 @@ function filter_uk_o2($eNodeB,$sectorId){
 	if ($eNodeB > 1100000) return false;
 	
 	// Discard sector IDs below 110 and above 170
-	if ($sectorId < 110 || $sectorId => 170) return false;
+	if ($sectorId < 110 || $sectorId >= 170) return false;
 	
 	$disallowedSectors = array(1,3,8,9);
 	if (in_array(substr($sectorId, -1),$disallowedSectors)){
@@ -54,7 +54,7 @@ function filter_uk_vf($eNodeB,$sectorId){
 	if ($eNodeB > 560000) return false;
 	
 	// Discard sector IDs above 70
-	if ($sectorId < 10 || $sectorId => 70) return false;
+	if ($sectorId < 10 || $sectorId >= 70) return false;
 	
 	$disallowedSectors = array(1,3);
 	if (in_array(substr($sectorId, -1),$disallowedSectors)){

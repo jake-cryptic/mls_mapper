@@ -12,7 +12,7 @@ if (empty($_GET["limit_s"])) die();
 require("db.php");
 
 // SQL Limits
-$mast_limit = intval($_GET["limit_m"]);
+$mast_limit = 500;//intval($_GET["limit_m"]);
 $sector_limit = intval($_GET["limit_s"]);
 
 // MNO
@@ -39,8 +39,12 @@ $conditions .= " AND lng > " . $c_swlng;
 // Get a list of eNBs matching parameters
 $get_enodebs = $db_connection->query("SELECT enodeb_id,lat,lng FROM masts WHERE " . $conditions . " LIMIT {$mast_limit}");
 
+if (!$get_enodebs) {
+	die($db_connection->error());
+}
+
 // Query for getting sectors for eNBs
-$get_sectors = $db_connection->prepare("SELECT sector_id,created,updated,lat,lng FROM sectors WHERE mnc = {$_GET['mno']} AND enodeb_id = ? LIMIT {$sector_limit}");
+$get_sectors = $db_connection->prepare("SELECT id,created,updated,lat,lng FROM sectors WHERE mnc = {$_GET['mno']} AND enodeb_id = ? LIMIT {$sector_limit}");
 $get_sectors->bind_param("i",$thisEnb);
 
 $returnData = array();

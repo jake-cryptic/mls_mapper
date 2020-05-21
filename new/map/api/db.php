@@ -2,7 +2,7 @@
 
 // Database logins
 DEFINE("DB_USERNAME","root");
-DEFINE("DB_DATABASE","lte_cell_export");
+DEFINE("DB_DATABASE","lte_jcellsort");
 DEFINE("DB_PASSWORD","");
 DEFINE("DB_HOSTNAME","localhost");
 
