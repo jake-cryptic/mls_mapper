@@ -98,8 +98,9 @@ function get_carrier_trend($mnc, $carrier, $time_start, $time_end, $time_interva
 		mnc = {$mnc} AND " . NETWORK_QUERIES[$mnc][$carrier];
 	$r = $db_connection->query($getBounds);
 	if (!$r) ret($out);
-	$out["min"] = $r->fetch_object()->min;
-	$out["max"] = $r->fetch_object()->max;
+	$resultSet = $r->fetch_object();
+	$out["min"] = $resultSet->min;
+	$out["max"] = $resultSet->max;
 	if ($out["min"] === null || $out["max"] === null) ret($out);
 	
 	$time_start = $out["min"];
