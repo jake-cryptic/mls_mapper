@@ -1,5 +1,7 @@
 <?php
 
+set_time_limit(120);
+
 require("api/db.php");
 
 DEFINE("BASE_SQL","SELECT COUNT(DISTINCT(enodeb_id)) AS enbcount, COUNT(sector_id) AS sectorcount FROM " . DB_SECTORS . " WHERE ");
@@ -61,43 +63,49 @@ DEFINE("NETWORK_QUERIES",array(
 ));
 
 if (!empty($_GET["mnc"]) && !empty($_GET["carrier"])) {
-	$start = time() - (86400 * 365 * 3);
+	$start = time() - (86400 * 365 * 7);
 	$end = time();
-	$int = 86400 * 3;
+	$int = 86400 * 7;
 	$cumulative = false;
+	$useupdated = false;
 
 	if (!empty($_GET["start"]) && is_numeric($start)) $start = (int) $_GET["start"];
 	if (!empty($_GET["end"]) && is_numeric($start)) $end = (int) $_GET["end"];
 	if (!empty($_GET["int"]) && is_numeric($start)) $int = (int) $_GET["int"];
 
 	if (!empty($_GET["cumulative"])) $cumulative = true;
+	if (!empty($_GET["useupdated"])) $useupdated = true;
 
-	get_carrier_trend(clean($_GET["mnc"]), $_GET["carrier"], $start, $end, $int, $cumulative);
+	get_carrier_trend(clean($_GET["mnc"]), $_GET["carrier"], $start, $end, $int, $cumulative, $useupdated);
 }
 
 function ret($out) {
 	die(json_encode($out,JSON_PRETTY_PRINT));
 }
 
-function get_carrier_trend($mnc, $carrier, $time_start, $time_end, $time_interval, $showCumulative) {
+function get_carrier_trend($mnc, $carrier, $time_start, $time_end, $time_interval, $showCumulative, $useUpdated) {
 	global $db_connection;
+	
+	$searchField = $useUpdated ? "updated" : "created";
 	
 	$out = array(
 		"min"=>time(),
+		"max"=>time(),
 		"results"=>array()
 	);
 	
-	$lowestValueQuery = "SELECT MIN(created) as min FROM " . DB_SECTORS . " WHERE 
+	$getBounds = "SELECT MIN({$searchField}) as min, MAX({$searchField}) as max FROM " . DB_SECTORS . " WHERE 
 		mnc = {$mnc} AND " . NETWORK_QUERIES[$mnc][$carrier];
-	$r = $db_connection->query($lowestValueQuery);
+	$r = $db_connection->query($getBounds);
 	if (!$r) ret($out);
 	$out["min"] = $r->fetch_object()->min;
-	if ($out["min"] === null) ret($out);
+	$out["max"] = $r->fetch_object()->max;
+	if ($out["min"] === null || $out["max"] === null) ret($out);
 	
 	$time_start = $out["min"];
 
 	$getDataQuery = "SELECT COUNT(DISTINCT(enodeb_id)) AS total FROM " . DB_SECTORS . " WHERE 
-		mnc = {$mnc} AND created > ? AND created < ? AND " . NETWORK_QUERIES[$mnc][$carrier];
+		mnc = {$mnc} AND {$searchField} > ? AND {$searchField} < ? AND " . NETWORK_QUERIES[$mnc][$carrier];
 	$get_sectors = $db_connection->prepare($getDataQuery);
 	$get_sectors->bind_param("ii",$thisMin, $thisMax);
 
@@ -189,7 +197,20 @@ HTMLTABLE;
 		<div class="container">
 			<canvas id="visu_chart" style="width:100%; height:75vh"></canvas>
 			<label for="cumulative">Show Cumulative</label>
-			<input type="checkbox" id="cumulative" name="cumulative" />
+			<input type="checkbox" checked="checked" id="cumulative" name="cumulative" />
+			<label for="useupdated">Use 'Updated' field</label>
+			<input type="checkbox" id="useupdated" name="useupdated" />
+			<br />
+			<label for="interval">Graph Interval</label>
+			<select id="interval" name="interval">
+				<option value="3">3 Days</option>
+				<option value="5">5 Days</option>
+				<option value="7" selected>1 Week</option>
+				<option value="14">1 Fortnight</option>
+				<option value="30">1 Month</option>
+				<option value="60">2 Months</option>
+				<option value="90">3 Months</option>
+			</select>
 			<button id="clear_graph">Clear Graph</button>
 		</div>
 		<div class="container-fluid">
@@ -308,12 +329,18 @@ HTMLTABLE;
 			}
 
 			function addData(el, mnc, query) {
-				let cumulative = "";
+				let additionalParams = "";
 				if ($("#cumulative").is(":checked")) {
-					cumulative = "&cumulative=true"
+					additionalParams += "&cumulative=true"
 				}
+				if ($("#useupdated").is(":checked")) {
+					additionalParams += "&useupdated=true"
+				}
+				
+				let interval = parseInt($("#interval").val()) * 86400;
+				additionalParams += "&int=" + interval;
 
-				$.get(base + "?mnc=" + mnc + cumulative + "&carrier=" + query, function(resp) {
+				$.get(base + "?mnc=" + mnc + additionalParams + "&carrier=" + query, function(resp) {
 					el.text("Parsing...");
 					let r = JSON.parse(resp);
 					console.log(r);
