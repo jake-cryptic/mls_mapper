@@ -75,12 +75,30 @@ if (!empty($_GET["mnc"]) && !empty($_GET["carrier"])) {
 	get_carrier_trend(clean($_GET["mnc"]), $_GET["carrier"], $start, $end, $int, $cumulative);
 }
 
+function ret($out) {
+	die(json_encode($out,JSON_PRETTY_PRINT));
+}
+
 function get_carrier_trend($mnc, $carrier, $time_start, $time_end, $time_interval, $showCumulative) {
 	global $db_connection;
+	
+	$out = array(
+		"min"=>time(),
+		"results"=>array()
+	);
+	
+	$lowestValueQuery = "SELECT MIN(created) as min FROM " . DB_SECTORS . " WHERE 
+		mnc = {$mnc} AND " . NETWORK_QUERIES[$mnc][$carrier];
+	$r = $db_connection->query($lowestValueQuery);
+	if (!$r) ret($out);
+	$out["min"] = $r->fetch_object()->min;
+	if ($out["min"] === null) ret($out);
+	
+	$time_start = $out["min"];
 
-	$q = "SELECT COUNT(DISTINCT(enodeb_id)) AS total FROM " . DB_SECTORS . " WHERE 
+	$getDataQuery = "SELECT COUNT(DISTINCT(enodeb_id)) AS total FROM " . DB_SECTORS . " WHERE 
 		mnc = {$mnc} AND created > ? AND created < ? AND " . NETWORK_QUERIES[$mnc][$carrier];
-	$get_sectors = $db_connection->prepare($q);
+	$get_sectors = $db_connection->prepare($getDataQuery);
 	$get_sectors->bind_param("ii",$thisMin, $thisMax);
 
 	$returnData = array();
@@ -106,8 +124,10 @@ function get_carrier_trend($mnc, $carrier, $time_start, $time_end, $time_interva
 
 		$returnData[$i] = $count;
 	}
+	
+	$out["results"] = $returnData;
 
-	die(json_encode($returnData, JSON_PRETTY_PRINT));
+	ret($out);
 }
 
 function get_info_for($mnc) {
@@ -205,7 +225,12 @@ HTMLTABLE;
 			</div>
 		</div>
 		<script type="text/javascript">
+			function getDateString(uts) {
+				let d = uts ? new Date(uts) : new Date();
+				return d.getDate() + "-" + d.getMonth() + "-" + d.getFullYear();
+			}
 			let base = "info.php";
+			let currentMin = getDateString();
 			let mncColors = {
 				"58":"#000",
 				"55":"#11a",
@@ -256,7 +281,8 @@ HTMLTABLE;
 			};
 			window.chart = new Chart(ctx, config);
 
-			function updateChart(data, mnc, title) {
+			function updateChart(resp, mnc, title) {
+				let data = resp.results;
 				let keys = Object.keys(data);
 				let newLine = {
 					label: title,
@@ -268,9 +294,8 @@ HTMLTABLE;
 
 				config.data.labels = [];
 				for (let i = 0;i < keys.length; i++) {
-					let d = new Date(parseInt(keys[i]) * 1000);
 					newLine.data.push(data[keys[i]]);
-					config.data.labels.push(d.getDate() + "-" + d.getMonth() + "-" + d.getFullYear());
+					config.data.labels.push(getDateString(parseInt(keys[i]) * 1000));
 				}
 
 				config.data.datasets.push(newLine);
@@ -288,10 +313,11 @@ HTMLTABLE;
 					cumulative = "&cumulative=true"
 				}
 
-				$.get(base + "?mnc=" + mnc + cumulative + "&carrier=" + query, function(data) {
+				$.get(base + "?mnc=" + mnc + cumulative + "&carrier=" + query, function(resp) {
 					el.text("Parsing...");
-					console.log(JSON.parse(data));
-					updateChart(JSON.parse(data), mnc, query);
+					let r = JSON.parse(resp);
+					console.log(r);
+					updateChart(r, mnc, query);
 					el.text("Added to chart").attr("disabled", true);
 				});
 			}
