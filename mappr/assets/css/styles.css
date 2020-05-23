@@ -3,7 +3,7 @@ body,html {
 	padding: 0;
 	font-size: 1.1em;
 	font-weight: 100;
-	font-family: sans-serif;
+	font-family: 'Open Sans', sans-serif;
 }
 
 select {
@@ -20,23 +20,25 @@ select {
 	width: 25%;
 }
 
-#map {
-	float:left;
+#page {
 	width:100%;
-	height: calc(99.5vh - 4em);
-	z-index: 10;
+	height:calc(100vh - 3em);
+}
+
+#map {
+	display:block;
+	float:left;
+	width:80%;
+	height:100%;
 	transition: .2s opacity ease-in-out;
 }
 
 #results {
 	display:block;
-	position:absolute;
 	float:left;
-	height:calc(99.5vh - 4em - 4.5%);
-	z-index: 15;
-	width:15%;
-	margin:2% 80%;
-	padding:0.25%;
+	width:20%;
+	height:calc(100vh - 3em);
+	margin:0;
 	background-color:rgba(255,255,255,0.7);
 	overflow-y:scroll;
 }
@@ -45,6 +47,9 @@ table {
 	width:100%;
 }
 
+table tr {
+	cursor:pointer;
+}
 table tr:nth-child(2n) {
 	border-bottom: 1px solid #000;
 }
@@ -76,6 +81,12 @@ tr td:nth-child(2){
 #opts {
 	z-index: 10;
 	height: 3em;
+	display: flex;
+	flex-direction: row;
+}
+
+#opts select, input {
+	flex: 1 0;
 }
 
 .site_popup_title {
@@ -103,9 +114,6 @@ tr td:nth-child(2){
 @media screen and (max-width:768px) {
 	select {
 		font-size: 1.1em;
-	}
-	#results{
-		display: none;
 	}
 }
 

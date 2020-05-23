@@ -1,3 +1,4 @@
+<?php require("api/db.php"); ?>
 <!DOCTYPE HTML>
 <html lang="en">
 	<head>
@@ -8,6 +9,11 @@
 		<meta content="#1a1a1a" name="theme-color" />
 		
 		<link rel="stylesheet" type="text/css" href="assets/css/styles.css?t<?php echo time(); ?>" />
+
+		<!-- Fonts
+		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,800;1,400&display=swap" rel="stylesheet" /> -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/solid.min.css" integrity="sha256-pIAzc/BIIo/hSvtNEDIiMTBtR9EfK3COmnH2pt8cPDY=" crossorigin="anonymous" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/fontawesome.min.css" integrity="sha256-CuUPKpitgFmSNQuPDL5cEfPOOJT/+bwUlhfumDJ9CI4=" crossorigin="anonymous" />
 		
 		<!-- jQuery -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
@@ -27,7 +33,17 @@
 		<div id="app">
 
 			<div id="opts">
-				<select id="map_name" onChange='v.m.change(map_name)'>
+				<select id="mobile_country_code">
+					<option value='0'>All</option>
+					<?php
+					$r = $db_connection->query("SELECT DISTINCT(mnc), mcc FROM " . DB_SECTORS);
+					while ($d = $r->fetch_object()) {
+						echo "<option value='{$d->mnc}'>{$d->mcc}-{$d->mnc}</option>";
+					}
+					?>
+				</select>
+
+				<select id="map_name">
 					<option value='osm'>OSM</option>
 					<option value='rdi' selected="selected">G Streets</option>
 					<option value='arm'>G Streets Alt</option>
@@ -37,17 +53,12 @@
 					<option value='tro'>G Terrain Only</option>
 					<option value='sat'>G Sat Only</option>
 				</select>
-				<select id="mobile_network_code" onChange='v.changeMno(mobile_network_code)'>
-					<option value='0'>All</option>
-					<option value='10'>O2-UK</option>
-					<option value='15'>Vodafone</option>
-					<option value='20'>Three</option>
-					<option value='30'>EE</option>
-					<option value='55'>Sure</option>
-					<option value='58'>Manx</option>
-				</select>
-				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchPopup">Advanced</button>
-				<a href="info.php">View Carrier Statistics</a>
+
+				<input type="search" name="enb_search" id="enb_search" placeholder="Search for eNodeB" />
+				<button type="button" class="btn btn-primary" id="enb_search_submit"><i class="fas fa-search"></i></button>
+
+				<button type="button" class="btn btn-primary"><i class="fas fa-location-arrow"></i></button>
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchPopup"><i class="fas fa-caret-square-down"></i></button>
 			</div>
 
 			<!-- Settings -->
@@ -101,23 +112,24 @@
 				</div>
 			</div>
 
-			<div id="map"></div>
-			<div id="results">
-				<table>
-					<thead>
-						<tr>
-							<th>MNC</th>
-							<th>eNB</th>
-							<th>Sectors</th>
-							<th>Opts</th>
-						</tr>
-					</thead>
-					<tbody id="results_tbl">
-						<tr>
-							<td colspan="3">No data</td>
-						</tr>
-					</tbody>
-				</table>
+			<div id="page">
+				<div id="map"></div>
+				<div id="results">
+					<table>
+						<thead>
+							<tr>
+								<th>MNC</th>
+								<th>eNB</th>
+								<th>Sectors</th>
+							</tr>
+						</thead>
+						<tbody id="results_tbl">
+							<tr>
+								<td colspan="3">No data</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
 
 		</div>

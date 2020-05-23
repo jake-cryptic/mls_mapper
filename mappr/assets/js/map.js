@@ -56,6 +56,7 @@ var v = {
 
 	init: function () {
 		v.m.init();
+		v.assignEvents();
 		v.getMncData();
 
 		$("#advanced_search").on("click enter", function () {
@@ -82,9 +83,11 @@ var v = {
 			v.m.map = L.map('map').setView([52.5201508, -1.5807446], v.m.zoom);
 			v.m.map.addEventListener('contextmenu', v.m.mapMove);
 
-			v.m.change({value: "rdi"});
+			v.m.changeMap("rdi");
 			v.m.initIcons();
+		},
 
+		moveToCurrentLocation: function() {
 			v.getLocation(function (lat, lon) {
 				v.m.map.setView([lat, lon], v.m.zoom);
 			});
@@ -103,7 +106,11 @@ var v = {
 			v.m.ico.multiple = new techIcon({iconUrl: 'assets/img/marker-multiple.png'});
 		},
 
-		change: function (map) {
+		setMap: function(){
+			v.m.changeMap($(this).val());
+		},
+
+		changeMap: function(map) {
 			if (v.base) v.m.map.removeLayer(v.base);
 
 			let maps = {
@@ -119,9 +126,9 @@ var v = {
 			let server = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 				attr = v.attr.o;
 
-			if (map.value !== "osm") {
+			if (map !== "osm") {
 				attr = v.attr.g;
-				server = 'https://mt1.google.com/vt/lyrs=' + maps[map.value] + '&x={x}&y={y}&z={z}';
+				server = 'https://mt1.google.com/vt/lyrs=' + maps[map] + '&x={x}&y={y}&z={z}';
 			}
 
 			v.base = new L.TileLayer(server, {attribution: attr});
@@ -148,10 +155,50 @@ var v = {
 		}
 	},
 
-	changeMno: function (mno) {
-		v.mno = parseInt(mno.value);
+	assignEvents: function() {
+		$("#mobile_country_code").on("change", v.changeMno);
+		$("#map_name").on("change", v.m.setMap);
+		$("#enb_search_submit").on("click enter", v.doNodeSearch);
+	},
+
+	changeMno: function() {
+		v.mno = parseInt($(this).val());
 		v.m.removeMapItems();
 		v.updateMncOpts();
+		v.loadData();
+	},
+
+	doNodeSearch: function() {
+		if (v.mno === 0) {
+			alert("Cannot search unless you select a mobile network.");
+			return;
+		}
+
+		let enb = $("#enb_search").val();
+		$.ajax({
+			url: 'api/lookup-node.php',
+			type: 'GET',
+			data: {
+				"mnc":v.mno,
+				"enb":enb
+			},
+			dataType: 'json',
+			success: v.nodeSearchResults,
+			error: function (e) {
+				console.error(e);
+			}
+		});
+	},
+
+	nodeSearchResults: function(resp) {
+		if (resp.length === 0) {
+			alert("No eNodeB with this ID found");
+			return;
+		}
+
+		let result = resp[0];
+
+		v.m.map.setView([result.lat, result.lng], 12);
 		v.loadData();
 	},
 
@@ -227,7 +274,7 @@ var v = {
 	},
 
 	sectorInfo: function (mno, enb, sectors) {
-		var ret = "<strong>" + enb + "</strong>: ";
+		let ret = "<strong>" + enb + "</strong>: ";
 		if (mno === 10) {
 			if (v.findItem(sectors, [115, 125, 135, 145, 155, 165])) ret += "1 ";
 			if (v.findItem(sectors, [114, 124, 134, 144, 154, 164])) ret += (enb >= 500000 ? "3 " : "1 ");
@@ -263,7 +310,7 @@ var v = {
 
 	getDataParameters: function () {
 		var data = {
-			"limit_m": 2500,
+			"limit_m": 1500,
 			"limit_s": 36,
 			"mastdb": "masts2"
 		};
@@ -304,14 +351,14 @@ var v = {
 			});
 		}
 
-		data["mnc"] = $("#mobileNetwork").val();
+		data["mnc"] = v.mno;
 
 		return data;
 	},
 
 	loadData: function () {
 		$.ajax({
-			url: 'api/lookup-enb.php',
+			url: 'api/get-pins.php',
 			type: 'GET',
 			data: v.getDataParameters(),
 			dataType: 'json',
@@ -434,16 +481,13 @@ var v = {
 		}
 
 		$r.append(
-			$("<tr/>").append(
+			$("<tr/>",{
+				"data-lat":point.lat,
+				"data-lng":point.lng
+			}).on("click enter",v.goToHereData).append(
 				$("<td/>").text(point.mnc),
 				$("<td/>").text(point.id),
-				$("<td/>").text(getSectors()),
-				$("<td/>").append(
-					$("<button/>",{
-						"data-lat":point.lat,
-						"data-lng":point.lng
-					}).text("View").on("click enter",v.goToHereData)
-				)
+				$("<td/>").text(getSectors())
 			)
 		);
 	},
