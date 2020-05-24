@@ -6,6 +6,7 @@ DEFINE("DB_DATABASE","lte_jcellsort");
 DEFINE("DB_PASSWORD","");
 DEFINE("DB_HOSTNAME","localhost");
 
+DEFINE("DB_USERS","users");
 DEFINE("DB_MASTS","masts");
 DEFINE("DB_LOCATIONS","locations");
 DEFINE("DB_SECTORS","sectors");
