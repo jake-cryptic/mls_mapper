@@ -33,7 +33,7 @@ select {
 	transition: .2s opacity ease-in-out;
 }
 
-#results {
+#sidebar {
 	display:block;
 	float:left;
 	width:20%;
@@ -43,18 +43,35 @@ select {
 	overflow-y:scroll;
 }
 
+#sidebar .tab-content .tab-pane {
+	display: none;
+}
+
+#map_settings {
+	text-align:center;
+}
+#map_settings select, #map_settings button {
+	display:inline-block;
+	float:none;
+	width:33.333%;
+}
+
 table {
 	width:100%;
 }
 
 table tr {
 	cursor:pointer;
-}
-table tr:nth-child(2n) {
 	border-bottom: 1px solid #000;
 }
+table tr:nth-child(2n) {
+	background-color:rgba(255,255,255,0.2);
+}
 table tr:nth-child(2n-1) {
-	border-bottom: 1px solid #1a1a1a;
+	background-color:rgba(255,255,255,0.1);
+}
+table tr:hover, table tr:focus {
+	background-color:rgba(0,0,0,0.1);
 }
 tr td:nth-child(2){
 	font-weight:900;

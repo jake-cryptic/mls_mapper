@@ -1,4 +1,6 @@
-<?php require("api/db.php"); ?>
+<?php
+require("api/init.php");
+?>
 <!DOCTYPE HTML>
 <html lang="en">
 	<head>
@@ -41,17 +43,6 @@
 						echo "<option value='{$d->mnc}'>{$d->mcc}-{$d->mnc}</option>";
 					}
 					?>
-				</select>
-
-				<select id="map_name">
-					<option value='osm'>OSM</option>
-					<option value='rdi' selected="selected">G Streets</option>
-					<option value='arm'>G Streets Alt</option>
-					<option value='hyb'>G Hybrid</option>
-					<option value='ter'>G Terrain</option>
-					<option value='rdo'>G Roads Only</option>
-					<option value='tro'>G Terrain Only</option>
-					<option value='sat'>G Sat Only</option>
 				</select>
 
 				<input type="search" name="enb_search" id="enb_search" placeholder="Search for eNodeB" />
@@ -114,21 +105,59 @@
 
 			<div id="page">
 				<div id="map"></div>
-				<div id="results">
-					<table>
-						<thead>
-							<tr>
-								<th>MNC</th>
-								<th>eNB</th>
-								<th>Sectors</th>
-							</tr>
-						</thead>
-						<tbody id="results_tbl">
-							<tr>
-								<td colspan="3">No data</td>
-							</tr>
-						</tbody>
-					</table>
+
+				<div id="sidebar">
+					<nav class="nav nav-pills nav-justified">
+						<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="map_settings"><i class="fas fa-map-marked-alt"></i></a>
+						<a class="nav-item nav-link active" href="#" data-sidebartab="results"><i class="fas fa-broadcast-tower"></i></a>
+						<a class="nav-item nav-link" href="#" data-sidebartab="user_pane"><i class="fas fa-user-alt"></i></a>
+						<a class="nav-item nav-link" href="#" data-sidebartab="bookmarks"><i class="fas fa-bookmark"></i></a>
+					</nav>
+					<div class="tab-content">
+						<div class="tab-pane" id="map_settings">
+							<h2>Map Settings</h2>
+							<fieldset>
+								<legend>Base Map</legend>
+								<select id="map_name">
+									<option value='osm'>OSM</option>
+									<option value='rdi' selected="selected">G Streets</option>
+									<option value='arm'>G Streets Alt</option>
+									<option value='hyb'>G Hybrid</option>
+									<option value='ter'>G Terrain</option>
+									<option value='rdo'>G Roads Only</option>
+									<option value='tro'>G Terrain Only</option>
+									<option value='sat'>G Sat Only</option>
+								</select>
+							</fieldset>
+							<fieldset id="operator_maps">
+								<legend>Operator Maps</legend>
+								<label for="operator_tile_opacity">Tile Opacity</label>
+								<input type="range" id="operator_tile_opacity" max="100" value="50" min="1" />
+							</fieldset>
+						</div>
+						<div class="tab-pane" id="results">
+							<table>
+								<thead>
+									<tr>
+										<th>MNC</th>
+										<th>eNB</th>
+										<th>Sectors</th>
+									</tr>
+								</thead>
+								<tbody id="results_tbl">
+									<tr>
+										<td colspan="3">No data</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="tab-pane" id="user_pane">
+							<h2>User Settings</h2>
+						</div>
+						<div class="tab-pane" id="bookmarks">
+							<h2>Bookmarked Locations</h2>
+						</div>
+					</div>
 				</div>
 			</div>
 

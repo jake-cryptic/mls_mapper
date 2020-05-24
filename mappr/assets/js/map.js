@@ -1,4 +1,8 @@
-var v = {
+const O2_TMS_BASE = "https://68aa7b45-tiles.spatialbuzz.net/tiles/o2_uk-";
+const EE_TMS_BASE = "https://maps.ee.co.uk//geowebcache/service/gmaps?&zoom={z}&x={x}&y={y}&format=image/png&Layers=";
+const THREE_TMS_BASE = "http://www.three.co.uk/static/images/functional_apps/coverage/";
+
+let v = {
 	mLimit: 5000,
 	sLimit: 36,
 	mno: 0,
@@ -55,8 +59,10 @@ var v = {
 	},
 
 	init: function () {
+		document.title = "Loading Map...";
 		v.m.init();
 		v.assignEvents();
+		v.sidebar.assignEvents();
 		v.getMncData();
 
 		$("#advanced_search").on("click enter", function () {
@@ -69,6 +75,98 @@ var v = {
 		navigator.geolocation.getCurrentPosition(function (position) {
 			cb(position.coords.latitude, position.coords.longitude);
 		});
+	},
+
+	sidebar: {
+		activeTab:"results",
+
+		assignEvents:function() {
+			v.mno_tiles.append_html();
+
+			$("#results").show();
+			$("[data-sidebartab]").each(function(){
+				$(this).on("click enter", function(){
+					$("a.active.nav-link").removeClass("active");
+					$(this).addClass("active");
+					v.sidebar.switchTab($(this).data("sidebartab"));
+				});
+			});
+		},
+
+		switchTab:function(newTab) {
+			$("#" + v.sidebar.activeTab).hide();
+			$("#" + newTab).show();
+			v.sidebar.activeTab = newTab;
+		}
+	},
+
+	mno_tiles: {
+		opacity:0.5,
+
+		tiles:{
+			"O2-UK":{
+				"3g2100":O2_TMS_BASE + "v157/styles/o2_uk_v157_data/{z}/{x}/{y}.png",
+				"3g":O2_TMS_BASE + "v157/styles/o2_uk_v157_datacombined/{z}/{x}/{y}.png",
+				"4g":O2_TMS_BASE + "v157/styles/o2_uk_v157_lte/{z}/{x}/{y}.png",
+				"VoLTE":O2_TMS_BASE + "v157/styles/o2_uk_v157_volte/{z}/{x}/{y}.png"
+			},
+			"Three-UK":{
+				"3g":THREE_TMS_BASE + "Fast/{z}/{x}/{y}.png",
+				"4g":THREE_TMS_BASE + "LTE/{z}/{x}/{y}.png",
+				"4g800":THREE_TMS_BASE + "800/{z}/{x}/{y}.png",
+				"5g":THREE_TMS_BASE + "FiveG/{z}/{x}/{y}.png",
+			},
+			"EE":{
+				"4g800":EE_TMS_BASE + "4g_800_ltea",
+				"4g1800":EE_TMS_BASE + "4g_1800_ltea",
+				"4g1800ds":EE_TMS_BASE + "4g_1800_ds_ltea",
+				"4g2600":EE_TMS_BASE + "4g_2600_ltea",
+				"2G":EE_TMS_BASE + "2g_ltea",
+				"3G":EE_TMS_BASE + "3g_ltea",
+				"4G":EE_TMS_BASE + "4g_ltea",
+				"5G":EE_TMS_BASE + "5g_ltea"
+			}
+		},
+
+		append_html:function(){
+			for (let op in v.mno_tiles.tiles) {
+				let el = $("<div/>");
+				el.append($("<h2/>").text(op));
+
+				for (let tile in v.mno_tiles.tiles[op]) {
+					el.append(
+						$("<button/>",{
+							"class":"btn btn-outline-dark",
+							"data-op":op,
+							"data-tile":tile,
+							"data-tileserver":v.mno_tiles.tiles[op][tile]
+						}).text(tile).on("click enter", v.mno_tiles.add_server)
+					);
+				}
+
+				$("#operator_maps").append(el);
+			}
+
+			$("#operator_tile_opacity").on("change", v.mno_tiles.update_opacity);
+		},
+
+		update_opacity:function(){
+			v.mno_tiles.opacity = $(this).val() / 100;
+
+			if (v.mno_tiles.tile_layer) {
+				v.mno_tiles.tile_layer.setOpacity(v.mno_tiles.opacity);
+			}
+		},
+
+		add_server:function(){
+			let server = $(this).data("tileserver"),
+				attr = $(this).data("op") + " " + $(this).data("tile");
+
+			if (v.mno_tiles.tile_layer) v.m.map.removeLayer(v.mno_tiles.tile_layer);
+
+			v.mno_tiles.tile_layer = new L.TileLayer(server, {attribution: attr, opacity: v.mno_tiles.opacity});
+			v.m.map.addLayer(v.mno_tiles.tile_layer);
+		}
 	},
 
 	m: {
@@ -198,7 +296,7 @@ var v = {
 
 		let result = resp[0];
 
-		v.m.map.setView([result.lat, result.lng], 12);
+		v.m.map.setView([result.lat, result.lng], 15);
 		v.loadData();
 	},
 
