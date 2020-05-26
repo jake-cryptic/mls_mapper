@@ -1,24 +1,36 @@
 <?php
 
+$output = array(
+	"error"=>true,
+	"message"=>"Unknown Error"
+);
+
+function output() {
+	global $output;
+	die(json_encode($output, JSON_PRETTY_PRINT));
+}
+
 $valid_formtypes = array("login", "create");
 if (empty($_POST["form_type"]) || !in_array($_POST["form_type"], $valid_formtypes)) {
 	http_response_code(403);
-	die();
+	output();
 }
 
 if (empty($_POST["email"]) || empty($_POST["password"]) || empty($_POST["csrf"])) {
 	http_response_code(403);
-	die();
+	output();
 }
 
 $email = $_POST["email"];
 $pass = $_POST["password"];
 
-if (filter_var($email,FILTER_VALIDATE_EMAIL)) {
-	die("Invalid email");
+if (!filter_var($email,FILTER_VALIDATE_EMAIL)) {
+	$output["message"] = "Email address not valid";
+	output();
 }
 if (strlen($pass) < 7) {
-	die("Password must be 6 or more characters");
+	$output["message"] = "Password must be 6 or more characters";
+	output();
 }
 
 require("init.php");
@@ -27,26 +39,48 @@ check_form_csrf($_POST["csrf"]);
 
 $email = clean($email);
 if ($_POST["form_type"] === "create") {
-	print("Creating account.");
+	if (empty($_POST["name"]) || empty($_POST["name"]) || empty($_POST["name"])) {
+		http_response_code(403);
+		output();
+	}
+	$name = clean($_POST["name"]);
+	if (strlen($name) > 255 && ctype_alnum($name)) {
+		$output["message"] = "Name failed validation";
+		output();
+	}
+
 	$r = $db_connection->query("SELECT user_id FROM users WHERE email = '{$email}' LIMIT 1");
 	if (!$r){
-		die("Couldn't check email");
+		output();
 	}
 
 	if($r->num_rows !== 0) {
-		die("Email exist.");
+		$output["message"] = "Email exists.";
+		output();
 	}
 
 	$pass_hash = password_hash($pass, PASSWORD_ARGON2ID);
-	$r = $db_connection->query("INSERT INTO users (email, passsword_hash) VALUES ('{$email}', '{$pass_hash}')");
+	$r = $db_connection->query("INSERT INTO " . DB_USERS . " (name, email, user_level, password_hash) VALUES ('{$name}', '{$email}', 1, '{$pass_hash}')");
 	if (!$r) {
-		die("Failed account make");
+		$output["message"] = "Account creation has failed";
+		output();
 	}
 }
 
-print("Logging in.");
-$r = $db_connection->query("SELECT user_id, password_hash, active, time_created FROM users WHERE email = '{$email}' LIMIT 1");
-if (!$r){
-	die();
+$r = $db_connection->query("SELECT user_id, name, password_hash, user_level, time_created FROM " . DB_USERS . " WHERE email = '{$email}' LIMIT 1");
+if (!$r || $r->num_rows !== 1){
+	$output["message"] = "Failed email lookup";
+	output();
 }
-print_r($r->fetch_object());
+
+$data = $r->fetch_object();
+if (!password_verify($pass, $data->password_hash)) {
+	$output["message"] = "Password invalid";
+	output();
+}
+
+$_SESSION["user"] = new User($data->user_id, $data->name, $email, array());
+
+$output["error"] = false;
+$output["message"] = "Logged in";
+output();
