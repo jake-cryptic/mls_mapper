@@ -17,3 +17,8 @@ function intArray($arr){
 
 	return $arr;
 }
+
+function output() {
+	global $output;
+	die(json_encode($output, JSON_PRETTY_PRINT));
+}

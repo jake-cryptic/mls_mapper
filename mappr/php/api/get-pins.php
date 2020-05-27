@@ -1,6 +1,7 @@
 <?php
 
 if (!isset($api_auth)) die();
+if (!$isLoggedIn) die();
 
 // MNC
 $mnc = null;

@@ -20,14 +20,6 @@ if (!isset($_SESSION["token"])) {
 	$_SESSION["token"] = get_random_str(16);
 }
 
-function check_form_csrf($unsafe) {
-	//print_r($_SESSION["token"] . " " . $unsafe . " ");
-	if ($unsafe !== $_SESSION["token"]) {
-		http_response_code(403);
-		die($_SESSION["token"]);
-	}
-}
-
 $allowed_pages = array(
 	"map",
 	"logout"

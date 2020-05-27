@@ -2,15 +2,18 @@
 
 if (!isset($api_auth)) die();
 
+function check_form_csrf($unsafe) {
+	//print_r($_SESSION["token"] . " " . $unsafe . " ");
+	if ($unsafe !== $_SESSION["token"]) {
+		http_response_code(403);
+		die($_SESSION["token"]);
+	}
+}
+
 $output = array(
 	"error"=>true,
 	"message"=>"Unknown Error"
 );
-
-function output() {
-	global $output;
-	die(json_encode($output, JSON_PRETTY_PRINT));
-}
 
 $valid_formtypes = array("login", "create");
 if (empty($_POST["form_type"]) || !in_array($_POST["form_type"], $valid_formtypes)) {
