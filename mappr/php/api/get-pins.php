@@ -1,21 +1,6 @@
 <?php
 
-DEFINE("API_LIMIT",15000);
-DEFINE("DEBUG",!empty($_GET["debug"]));
-
-function intArray($arr){
-	$arr = (array)$arr;
-	
-	$arr = array_filter($arr, function($v){
-		return is_numeric($v);
-	});
-	
-	$arr = array_map(function($v){
-		return intval($v);
-	},$arr);
-	
-	return $arr;
-}
+if (!isset($api_auth)) die();
 
 // MNC
 $mnc = null;
@@ -47,13 +32,13 @@ if (!empty($_GET["pcis"]) && is_array($_GET["pcis"]) && count($_GET["pcis"]) !==
 	$pci_list = intArray($_GET["pcis"]);
 }
 
-// Connect to database and perform query
-require("db.php");
-
 $returnData = array();
 
 // SQL parameters that apply to all queries
 $limitBounds = "";
+if (empty($_GET["swlat"]) || empty($_GET["nelng"]) || empty($_GET["nelat"]) || empty($_GET["swlng"])){
+	die();
+}
 if (!empty($_GET["swlat"])) $limitBounds .= " AND ".DB_MASTS.".lat > " . clean($_GET["swlat"]);
 if (!empty($_GET["nelng"])) $limitBounds .= " AND ".DB_MASTS.".lng < " . clean($_GET["nelng"]);
 if (!empty($_GET["nelat"])) $limitBounds .= " AND ".DB_MASTS.".lat < " . clean($_GET["nelat"]);

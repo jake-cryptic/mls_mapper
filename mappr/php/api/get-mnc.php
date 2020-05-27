@@ -1,6 +1,6 @@
 <?php
 
-require("db.php");
+if (!isset($api_auth)) die();
 
 $sql = "SELECT DISTINCT(mnc) FROM ".DB_SECTORS;
 

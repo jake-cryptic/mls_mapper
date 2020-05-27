@@ -17,38 +17,6 @@ let v = {
 
 	mncData: {},
 
-	cData: {
-		10: {
-			"L08": [110, 120, 130, 140, 150, 160],
-			"L18": [114, 124, 134, 144, 154, 164],
-			"L21": [115, 125, 135, 145, 155, 165],
-			"L23-C1": [116, 126, 136, 146, 156, 166],
-			"L23-C2": [117, 127, 137, 147, 157, 167]
-		},
-		15: {
-			"L08": [10, 20, 30, 40, 50, 60],
-			"L09": [12, 22, 32],
-			"L18": [16, 26, 36, 46, 56, 66],
-			"L21": [14, 24, 34, 44, 54, 64, 15, 25, 35],
-			"L26": [18, 28, 38, 48, 58, 68],
-			"L26T": [19, 29, 39]
-		},
-		20: {
-			"L18": [0, 1, 2, 3, 4, 5],
-			"L08": [6, 7, 8],
-			"L21": [71, 72, 73, 74, 75, 76]
-		},
-		30: {
-			"L18": [0, 1, 2],
-			"L18-C2": [3, 4, 5],
-			"L26-C1": [6, 7, 8],
-			"L26-C2": [9, 10, 11],
-			"L26-C3": [15, 16, 17],
-			"L08": [12, 13, 14],
-			"L21": [18, 19, 20]
-		}
-	},
-
 	sData: {
 		10: JSON.parse('{"110":"L08","114":"L18","115":"L21","116":"L23-C1","117":"L23-C2","120":"L08","124":"L18","125":"L21","126":"L23-C1","127":"L23-C2","130":"L08","134":"L18","135":"L21","136":"L23-C1","137":"L23-C2","140":"L08","144":"L18","145":"L21","146":"L23-C1","147":"L23-C2","150":"L08","154":"L18","155":"L21","156":"L23-C1","157":"L23-C2","160":"L08","164":"L18","165":"L21","166":"L23-C1","167":"L23-C2"}'),
 		15: JSON.parse('{"10":"L08","12":"L09","14":"L21","15":"L21","16":"L18","18":"L26","19":"L26T","20":"L08","22":"L09","24":"L21","25":"L21","26":"L18","28":"L26","29":"L26T","30":"L08","32":"L09","34":"L21","35":"L21","36":"L18","38":"L26","39":"L26T","40":"L08","44":"L21","46":"L18","48":"L26","50":"L08","54":"L21","56":"L18","58":"L26","60":"L08","64":"L21","66":"L18","68":"L26"}'),
@@ -179,6 +147,7 @@ let v = {
 
 		init: function () {
 			v.m.map = L.map('map').setView([52.5201508, -1.5807446], v.m.zoom);
+			v.m.moveToCurrentLocation();
 			v.m.map.addEventListener('contextmenu', v.m.mapMove);
 
 			v.m.changeMap("rdi");
@@ -274,7 +243,7 @@ let v = {
 
 		let enb = $("#enb_search").val();
 		$.ajax({
-			url: 'api/lookup-node.php',
+			url: 'api/lookup-node/',
 			type: 'GET',
 			data: {
 				"mnc":v.mno,
@@ -301,9 +270,8 @@ let v = {
 	},
 
 	getMncData: function () {
-		var reqData = {
-			mcc: v.mcc,
-			mastdb: "masts2"
+		let reqData = {
+			mcc: v.mcc
 		};
 
 		if ($("#adv_load_only_bounds_sector").is(":checked")) {
@@ -315,7 +283,7 @@ let v = {
 		}
 
 		$.ajax({
-			url: 'api/get-mnc.php',
+			url: 'api/get-mnc/',
 			type: 'GET',
 			data: reqData,
 			dataType: 'json',
@@ -373,34 +341,41 @@ let v = {
 
 	sectorInfo: function (mno, enb, sectors) {
 		let ret = "<strong>" + enb + "</strong>: ";
-		if (mno === 10) {
-			if (v.findItem(sectors, [115, 125, 135, 145, 155, 165])) ret += "1 ";
-			if (v.findItem(sectors, [114, 124, 134, 144, 154, 164])) ret += (enb >= 500000 ? "3 " : "1 ");
-			if (v.findItem(sectors, [110, 120, 130, 140, 150, 160])) ret += "20 ";
-			if (v.findItem(sectors, [112, 122, 132])) ret += "8 ";
-			if (v.findItem(sectors, [116, 126, 136, 146, 156, 166])) ret += (enb >= 500000 ? "40C1 " : "3 ");
-			if (v.findItem(sectors, [117, 127, 137, 147, 157, 167])) ret += "40C2";
-		} else if (mno === 15) {
-			if (v.findItem(sectors, [15, 25, 35, 45, 55, 65])) ret += "1 ";
-			if (v.findItem(sectors, [14, 24, 34, 44, 54, 64])) ret += "1 ";
-			if (v.findItem(sectors, [16, 26, 36, 46, 56, 66])) ret += "3 ";
-			if (v.findItem(sectors, [18, 28, 38, 48, 58, 68])) ret += "7 ";
-			if (v.findItem(sectors, [12, 22, 32])) ret += "8 ";
-			if (v.findItem(sectors, [10, 20, 30, 40, 50, 60])) ret += "20 ";
-			if (v.findItem(sectors, [19, 29, 39, 49, 59, 69])) ret += "38";
-		} else if (mno === 20) {
-			if (v.findItem(sectors, [71, 72, 73, 74, 75, 76])) ret += "1 ";
-			if (v.findItem(sectors, [0, 1, 2, 3, 4, 5])) ret += "3 ";
-			if (v.findItem(sectors, [16])) ret += "3SC ";
-			if (v.findItem(sectors, [6, 7, 8])) ret += "20";
-		} else if (mno === 30) {
-			if (v.findItem(sectors, [18, 19, 20])) ret += "1 ";
-			if (v.findItem(sectors, [15, 16, 17])) ret += "7T ";
-			if (v.findItem(sectors, [0, 1, 2])) ret += "3P ";
-			if (v.findItem(sectors, [3, 4, 5])) ret += "3S ";
-			if (v.findItem(sectors, [6, 7, 8])) ret += "7P ";
-			if (v.findItem(sectors, [9, 10, 11])) ret += "7S ";
-			if (v.findItem(sectors, [12, 13, 14])) ret += "20";
+		switch (mno) {
+			case 10:
+				if (v.findItem(sectors, [115, 125, 135, 145, 155, 165])) ret += "1 ";
+				if (v.findItem(sectors, [114, 124, 134, 144, 154, 164])) ret += (enb >= 500000 ? "3 " : "1 ");
+				if (v.findItem(sectors, [110, 120, 130, 140, 150, 160])) ret += "20 ";
+				if (v.findItem(sectors, [112, 122, 132])) ret += "8 ";
+				if (v.findItem(sectors, [116, 126, 136, 146, 156, 166])) ret += (enb >= 500000 ? "40C1 " : "3 ");
+				if (v.findItem(sectors, [117, 127, 137, 147, 157, 167])) ret += "40C2";
+				break;
+			case 15:
+				if (v.findItem(sectors, [15, 25, 35, 45, 55, 65])) ret += "1 ";
+				if (v.findItem(sectors, [14, 24, 34, 44, 54, 64])) ret += "1 ";
+				if (v.findItem(sectors, [16, 26, 36, 46, 56, 66])) ret += "3 ";
+				if (v.findItem(sectors, [18, 28, 38, 48, 58, 68])) ret += "7 ";
+				if (v.findItem(sectors, [12, 22, 32])) ret += "8 ";
+				if (v.findItem(sectors, [10, 20, 30, 40, 50, 60])) ret += "20 ";
+				if (v.findItem(sectors, [19, 29, 39, 49, 59, 69])) ret += "38";
+				break;
+			case 20:
+				if (v.findItem(sectors, [71, 72, 73, 74, 75, 76])) ret += "1 ";
+				if (v.findItem(sectors, [0, 1, 2, 3, 4, 5])) ret += "3 ";
+				if (v.findItem(sectors, [16])) ret += "3SC ";
+				if (v.findItem(sectors, [6, 7, 8])) ret += "20";
+				break;
+			case 30:
+				if (v.findItem(sectors, [18, 19, 20])) ret += "1 ";
+				if (v.findItem(sectors, [15, 16, 17])) ret += "7T ";
+				if (v.findItem(sectors, [0, 1, 2])) ret += "3P ";
+				if (v.findItem(sectors, [3, 4, 5])) ret += "3S ";
+				if (v.findItem(sectors, [6, 7, 8])) ret += "7P ";
+				if (v.findItem(sectors, [9, 10, 11])) ret += "7S ";
+				if (v.findItem(sectors, [12, 13, 14])) ret += "20";
+				break;
+			default:
+				break;
 		}
 
 		return ret;
@@ -409,8 +384,7 @@ let v = {
 	getDataParameters: function () {
 		var data = {
 			"limit_m": 1500,
-			"limit_s": 36,
-			"mastdb": "masts2"
+			"limit_s": 36
 		};
 
 		// Coordinate bounds
@@ -456,7 +430,7 @@ let v = {
 
 	loadData: function () {
 		$.ajax({
-			url: 'api/get-pins.php',
+			url: 'api/get-pins/',
 			type: 'GET',
 			data: v.getDataParameters(),
 			dataType: 'json',

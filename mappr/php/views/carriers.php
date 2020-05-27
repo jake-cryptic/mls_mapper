@@ -2,8 +2,6 @@
 
 set_time_limit(120);
 
-require("api/db.php");
-
 DEFINE("BASE_SQL","SELECT COUNT(DISTINCT(enodeb_id)) AS enbcount, COUNT(sector_id) AS sectorcount FROM " . DB_SECTORS . " WHERE ");
 DEFINE("NETWORK_QUERIES",array(
 	"10"=>array(

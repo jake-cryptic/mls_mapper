@@ -4,6 +4,9 @@ require("User.class.php");
 require("db.php");
 require("functions.php");
 
+DEFINE("API_LIMIT",15000);
+DEFINE("DEBUG",!empty($_GET["debug"]));
+
 session_name("mappr");
 session_set_cookie_params(86400 * 365, null, null, false, true);
 @session_start();
@@ -24,3 +27,14 @@ function check_form_csrf($unsafe) {
 		die($_SESSION["token"]);
 	}
 }
+
+$allowed_pages = array(
+	"map",
+	"logout"
+);
+$allowed_apis = array(
+	"account-handler",
+	"get-mnc",
+	"get-pins",
+	"lookup-node"
+);

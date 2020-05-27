@@ -1,6 +1,6 @@
 let acc = {
 
-	api:"api/account-handler.php",
+	api:"api/account-handler/",
 	msg:$("#server_resp"),
 
 	init:function(){

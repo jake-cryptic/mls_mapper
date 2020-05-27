@@ -1,26 +1,13 @@
 <?php
 
-DEFINE("API_LIMIT",15000);
-DEFINE("DEBUG",!empty($_GET["debug"]));
-
-function intArray($arr){
-	$arr = (array)$arr;
-
-	$arr = array_filter($arr, function($v){
-		return is_numeric($v);
-	});
-
-	$arr = array_map(function($v){
-		return intval($v);
-	},$arr);
-
-	return $arr;
-}
+if (!isset($api_auth)) die();
 
 // MNC
 $mnc = null;
 if (!empty($_GET["mnc"]) && is_numeric($_GET["mnc"])) {
 	$mnc = intval($_GET["mnc"]);
+} else {
+	die();
 }
 
 // eNodeB ID
@@ -28,9 +15,6 @@ $enb = null;
 if (!empty($_GET["enb"]) && is_numeric($_GET["enb"])) {
 	$enb = intval($_GET["enb"]);
 }
-
-// Connect to database and perform query
-require("db.php");
 
 $returnData = array();
 
@@ -50,7 +34,7 @@ $sql = "SELECT DISTINCT(".DB_SECTORS.".enodeb_id), ".DB_MASTS.".lat, ".DB_MASTS.
 		FROM ".DB_SECTORS.", ".DB_MASTS."
 		WHERE ".DB_MASTS.".enodeb_id = ".DB_SECTORS.".enodeb_id
 		{$limitMNC} {$limitIds}
-		LIMIT " . API_LIMIT;
+		LIMIT 10";
 
 if (DEBUG) die($sql);
 

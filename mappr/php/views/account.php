@@ -1,9 +1,9 @@
-<div class="container">
-	<div class="jumbotron">
+<div class="jumbotron jumbotron-fluid">
+	<div class="container">
 		<h1 class="display-4">Access is restricted.</h1>
 		<div class="alert alert-info" id="server_resp" role="alert">Login to continue.</div>
 
-		<ul class="nav nav-pills" id="tabs_list" role="tablist">
+		<ul class="nav nav-pills mb-3" id="tabs_list" role="tablist">
 			<li class="nav-item" role="presentation">
 				<a class="nav-link active" id="login_tab" data-toggle="tab" href="#login_pane" role="tab" aria-controls="login_pane" aria-selected="true">Login</a>
 			</li>
@@ -19,7 +19,7 @@
 					<input type="hidden" name="csrf" value="<?php echo $_SESSION["token"]; ?>" />
 					<div class="form-group">
 						<label for="email">Email address</label>
-						<input type="email" class="form-control" name="email" aria-describedby="emailHelp">
+						<input type="email" class="form-control" name="email" aria-describedby="emailHelp" />
 						<small id="emailHelp" class="form-text text-muted">Please enter your registered email.</small>
 					</div>
 					<div class="form-group">

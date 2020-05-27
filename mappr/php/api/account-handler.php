@@ -1,5 +1,7 @@
 <?php
 
+if (!isset($api_auth)) die();
+
 $output = array(
 	"error"=>true,
 	"message"=>"Unknown Error"
@@ -33,13 +35,11 @@ if (strlen($pass) < 7) {
 	output();
 }
 
-require("init.php");
-
 check_form_csrf($_POST["csrf"]);
 
 $email = clean($email);
 if ($_POST["form_type"] === "create") {
-	if (empty($_POST["name"]) || empty($_POST["name"]) || empty($_POST["name"])) {
+	if (empty($_POST["name"])) {
 		http_response_code(403);
 		output();
 	}
