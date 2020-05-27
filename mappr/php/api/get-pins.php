@@ -1,6 +1,6 @@
 <?php
 
-if (!isset($api_auth) || !$api_auth) die();
+if (empty($api_auth) || $api_auth === false) die();
 
 // MNC
 $mnc = null;

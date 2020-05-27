@@ -1,8 +1,13 @@
 <?php
 
-if (!isset($api_auth) || !$api_auth) die();
+if (empty($api_auth) || $api_auth === false) die();
 
-$sql = "SELECT DISTINCT(mcc, mnc) FROM ".DB_SECTORS;
+if (empty($_GET["mcc"]) || !is_numeric($_GET["mcc"])) {
+	die();
+}
+$mcc = clean($_GET["mcc"]);
+
+$sql = "SELECT DISTINCT mnc FROM " . DB_SECTORS . " WHERE mcc = '{$mcc}'";
 
 $r = $db_connection->query($sql);
 

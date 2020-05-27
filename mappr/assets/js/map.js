@@ -85,6 +85,11 @@ let v = {
 				"5g":THREE_TMS_BASE + "FiveG/{z}/{x}/{y}.png",
 			},
 			"EE":{
+				"CM-4G":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=0",
+				"CM-L21":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=1",
+				"CM-L18":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=3",
+				"CM-L26":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=7",
+				"CM-L08":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=20",
 				"4g800":EE_TMS_BASE + "4g_800_ltea",
 				"4g1800":EE_TMS_BASE + "4g_1800_ltea",
 				"4g1800ds":EE_TMS_BASE + "4g_1800_ds_ltea",

@@ -6,16 +6,16 @@ RewriteEngine On
 #RewriteRule $ /maintenance.html [R=302,L]
 
 # Point content pages to the router
-RewriteRule ^(\/|index|default|home|map|login)?$ index.php?api=false&requested=$1 [NC,L,QSA]
+RewriteRule ^(\/|index|default|home|map|stats)?$ index.php?api=false&requested=$1 [NC,L,QSA]
 RewriteRule ^api/([A-Za-z0-9_\-]+)/?$ index.php?api=true&requested=$1 [NC,L,QSA]
 
 # Only set these headers for certain files
 <FilesMatch "\.(html|htm|php)$">
 Header set Cache-Control "max-age=0, private, no-store, no-cache, must-revalidate"
-Header always set Feature-Policy "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'"
-Header always set Referrer-Policy "no-referrer-when-downgrade"
+Header always set Feature-Policy "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; microphone 'none'; payment 'none';"
+Header always set Referrer-Policy "no-referrer"
 Header always set X-XSS-Protection "1; mode=block"
-Header always set X-Frame-Options "SAMEORIGINi"
+Header always set X-Frame-Options "SAMEORIGIN"
 </FilesMatch>
 
 # Add in security headers (all files)

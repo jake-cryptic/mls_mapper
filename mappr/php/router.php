@@ -23,10 +23,9 @@ if (!in_array($requested_page, $api_request ? $allowed_apis : $allowed_pages)) {
 }
 
 if ($api_request) {
+	$api_auth = $isLoggedIn;
 	if ($requested_page === "account-handler") {
 		$api_auth = true;
-	} else {
-		$api_auth = $isLoggedIn;
 	}
 
 	require("api/{$requested_page}.php");

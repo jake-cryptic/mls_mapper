@@ -17,5 +17,5 @@ if (empty($_POST["action"]) || !in_array($_POST["action"], $valid_actions)) {
 function get_bookmarks() {
 	global $db_connection;
 
-
+	$r = $db_connection->query("SELECT ");
 }
