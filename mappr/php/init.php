@@ -20,6 +20,8 @@ if (!isset($_SESSION["token"])) {
 	$_SESSION["token"] = get_random_str(16);
 }
 
+$fv = time();
+
 $allowed_pages = array(
 	"map",
 	"logout"

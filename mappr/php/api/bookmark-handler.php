@@ -1,7 +1,6 @@
 <?php
 
-if (!isset($api_auth)) die();
-if (!$isLoggedIn) die();
+if (!isset($api_auth) || !$api_auth) die();
 
 $output = array(
 	"error"=>true,

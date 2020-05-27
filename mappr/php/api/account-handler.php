@@ -1,6 +1,6 @@
 <?php
 
-if (!isset($api_auth)) die();
+if (!isset($api_auth) || !$api_auth) die();
 
 function check_form_csrf($unsafe) {
 	//print_r($_SESSION["token"] . " " . $unsafe . " ");

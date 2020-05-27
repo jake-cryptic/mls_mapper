@@ -7,7 +7,7 @@
 		<meta content="IE=edge" http-equiv="X-UA-Compatible" />
 		<meta content="#1a1a1a" name="theme-color" />
 
-		<link rel="stylesheet" type="text/css" href="assets/css/styles.css?t<?php echo time(); ?>" />
+		<link rel="stylesheet" type="text/css" href="assets/css/styles.css?v=<?php echo $fv; ?>" />
 
 		<!-- Fonts -->
 		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,800;1,400&display=swap" rel="stylesheet" />
@@ -31,7 +31,9 @@
 
 		<div id="app">
 
-			<?php include($main_file) ?>
+			<?php
+				include($main_file ?? "404.php");
+			?>
 
 		</div>
 

@@ -1,9 +1,8 @@
 <?php
 
-if (!isset($api_auth)) die();
-if (!$isLoggedIn) die();
+if (!isset($api_auth) || !$api_auth) die();
 
-$sql = "SELECT DISTINCT(mnc) FROM ".DB_SECTORS;
+$sql = "SELECT DISTINCT(mcc, mnc) FROM ".DB_SECTORS;
 
 $r = $db_connection->query($sql);
 

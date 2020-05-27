@@ -125,4 +125,5 @@
 	</div>
 </div>
 
-<script type="text/javascript" src="assets/js/map.js?t<?php echo time(); ?>" defer></script>
+<script type="text/javascript" src="assets/js/util.js?v=<?php echo $fv; ?>"></script>
+<script type="text/javascript" src="assets/js/map.js?v=<?php echo $fv; ?>" defer></script>

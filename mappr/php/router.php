@@ -23,9 +23,18 @@ if (!in_array($requested_page, $api_request ? $allowed_apis : $allowed_pages)) {
 }
 
 if ($api_request) {
-	$api_auth = true;
+	if ($requested_page === "account-handler") {
+		$api_auth = true;
+	} else {
+		$api_auth = $isLoggedIn;
+	}
+
 	require("api/{$requested_page}.php");
 } else {
+	if (!$isLoggedIn) {
+		$requested_page = "account";
+	}
+
 	$main_file = "{$requested_page}.php";
 	require("views/template.php");
 }
