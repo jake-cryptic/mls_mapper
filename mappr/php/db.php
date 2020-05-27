@@ -7,9 +7,10 @@ DEFINE("DB_PASSWORD","");
 DEFINE("DB_HOSTNAME","localhost");
 
 DEFINE("DB_USERS","users");
-DEFINE("DB_MASTS","masts");
+DEFINE("DB_BOOKMARKS","bookmarks");
+DEFINE("DB_MASTS","masts_adv");
 DEFINE("DB_LOCATIONS","locations");
-DEFINE("DB_SECTORS","sectors");
+DEFINE("DB_SECTORS","sectors_adv");
 
 $db_connection = @new mysqli(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE,3306);
 

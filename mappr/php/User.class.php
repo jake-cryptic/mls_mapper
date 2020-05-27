@@ -3,12 +3,14 @@
 class User {
 
 	private $id;
+	private $level;
 	private $name;
 	private $email;
 	private $bookmarks;
 
-	public function __constructor($id, $name, $email, $bookmarks){
+	public function __constructor($id, $level, $name, $email, $bookmarks){
 		$this->id = $id;
+		$this->level = $level;
 		$this->name = $name;
 		$this->email = $email;
 		$this->bookmarks = $bookmarks;

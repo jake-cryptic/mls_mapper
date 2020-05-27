@@ -77,12 +77,18 @@ if (!$r || $r->num_rows !== 1){
 }
 
 $data = $r->fetch_object();
+
+if ($data->user_level === 0) {
+	$output["message"] = "Account not active";
+	output();
+}
+
 if (!password_verify($pass, $data->password_hash)) {
 	$output["message"] = "Password invalid";
 	output();
 }
 
-$_SESSION["user"] = new User($data->user_id, $data->name, $email, array());
+$_SESSION["user"] = new User($data->user_id, $data->user_level, $data->name, $email, array());
 
 $output["error"] = false;
 $output["message"] = "Logged in";
