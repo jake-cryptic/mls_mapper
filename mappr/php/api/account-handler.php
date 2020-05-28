@@ -10,11 +10,6 @@ function check_form_csrf($unsafe) {
 	}
 }
 
-$output = array(
-	"error"=>true,
-	"message"=>"Unknown Error"
-);
-
 $valid_formtypes = array("login", "create");
 if (empty($_POST["form_type"]) || !in_array($_POST["form_type"], $valid_formtypes)) {
 	http_response_code(403);

@@ -68,7 +68,7 @@ if (count($pci_list) > 0){
 	$limitSectors = "AND ".DB_SECTORS.".pci IN ({$pciSql})";
 }
 
-$sql = "SELECT DISTINCT(".DB_MASTS.".enodeb_id), ".DB_MASTS.".lat, ".DB_MASTS.".lng, ".DB_SECTORS.".mnc
+$sql = "SELECT DISTINCT(".DB_SECTORS.".enodeb_id), ".DB_MASTS.".lat, ".DB_MASTS.".lng, ".DB_SECTORS.".mnc
 		FROM ".DB_SECTORS.", ".DB_MASTS."
 		WHERE ".DB_MASTS.".enodeb_id = ".DB_SECTORS.".enodeb_id
 		{$limitMNC} {$limitIds} {$limitPCIs} {$limitSectors} {$limitBounds}
@@ -100,6 +100,7 @@ while ($node = $get_enblist->fetch_object()){
 	}
 	
 	$returnData[] = array(
+		"located_by"=>-1,
 		"lat"=>$node->lat,
 		"lng"=>$node->lng,
 		"id"=>$thisEnb,

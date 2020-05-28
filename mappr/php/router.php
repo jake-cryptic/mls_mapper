@@ -28,6 +28,11 @@ if ($api_request) {
 		$api_auth = true;
 	}
 
+	$output = array(
+		"error"=>true,
+		"message"=>"Unknown"
+	);
+
 	require("api/{$requested_page}.php");
 } else {
 	if (!$isLoggedIn) {

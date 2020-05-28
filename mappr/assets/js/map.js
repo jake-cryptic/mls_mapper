@@ -1,6 +1,7 @@
 const O2_TMS_BASE = "https://68aa7b45-tiles.spatialbuzz.net/tiles/o2_uk-";
 const EE_TMS_BASE = "https://maps.ee.co.uk//geowebcache/service/gmaps?&zoom={z}&x={x}&y={y}&format=image/png&Layers=";
 const THREE_TMS_BASE = "http://www.three.co.uk/static/images/functional_apps/coverage/";
+const CM_TMS_BASE = "https://api.cellmapper.net/v6/getTile?MCC=234&MNC=";
 
 let v = {
 	mLimit: 5000,
@@ -73,23 +74,43 @@ let v = {
 
 		tiles:{
 			"O2-UK":{
+				"CM-4G":CM_TMS_BASE + "10&RAT=LTE&z={z}&x={x}&y={y}&band=0",
+				"CM-L18":CM_TMS_BASE + "10&RAT=LTE&z={z}&x={x}&y={y}&band=3",
+				"CM-L21":CM_TMS_BASE + "10&RAT=LTE&z={z}&x={x}&y={y}&band=1",
+				"CM-L23":CM_TMS_BASE + "10&RAT=LTE&z={z}&x={x}&y={y}&band=40",
+				"CM-L08":CM_TMS_BASE + "10&RAT=LTE&z={z}&x={x}&y={y}&band=20",
+				"CM-L09":CM_TMS_BASE + "10&RAT=LTE&z={z}&x={x}&y={y}&band=8",
 				"3g2100":O2_TMS_BASE + "v157/styles/o2_uk_v157_data/{z}/{x}/{y}.png",
 				"3g":O2_TMS_BASE + "v157/styles/o2_uk_v157_datacombined/{z}/{x}/{y}.png",
 				"4g":O2_TMS_BASE + "v157/styles/o2_uk_v157_lte/{z}/{x}/{y}.png",
 				"VoLTE":O2_TMS_BASE + "v157/styles/o2_uk_v157_volte/{z}/{x}/{y}.png"
 			},
 			"Three-UK":{
+				"CM-4G":CM_TMS_BASE + "20&RAT=LTE&z={z}&x={x}&y={y}&band=0",
+				"CM-L18":CM_TMS_BASE + "20&RAT=LTE&z={z}&x={x}&y={y}&band=3",
+				"CM-L21":CM_TMS_BASE + "20&RAT=LTE&z={z}&x={x}&y={y}&band=1",
+				"CM-L14":CM_TMS_BASE + "20&RAT=LTE&z={z}&x={x}&y={y}&band=32",
+				"CM-L08":CM_TMS_BASE + "20&RAT=LTE&z={z}&x={x}&y={y}&band=20",
 				"3g":THREE_TMS_BASE + "Fast/{z}/{x}/{y}.png",
 				"4g":THREE_TMS_BASE + "LTE/{z}/{x}/{y}.png",
 				"4g800":THREE_TMS_BASE + "800/{z}/{x}/{y}.png",
 				"5g":THREE_TMS_BASE + "FiveG/{z}/{x}/{y}.png",
 			},
+			"Vodafone-UK":{
+				"CM-4G":CM_TMS_BASE + "15&RAT=LTE&z={z}&x={x}&y={y}&band=0",
+				"CM-L18":CM_TMS_BASE + "15&RAT=LTE&z={z}&x={x}&y={y}&band=3",
+				"CM-L21":CM_TMS_BASE + "15&RAT=LTE&z={z}&x={x}&y={y}&band=1",
+				"CM-L26":CM_TMS_BASE + "15&RAT=LTE&z={z}&x={x}&y={y}&band=7",
+				"CM-L08":CM_TMS_BASE + "15&RAT=LTE&z={z}&x={x}&y={y}&band=20",
+				"CM-L09":CM_TMS_BASE + "15&RAT=LTE&z={z}&x={x}&y={y}&band=8",
+				"CM-L26T":CM_TMS_BASE + "15&RAT=LTE&z={z}&x={x}&y={y}&band=38",
+			},
 			"EE":{
-				"CM-4G":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=0",
-				"CM-L21":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=1",
-				"CM-L18":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=3",
-				"CM-L26":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=7",
-				"CM-L08":"https://api.cellmapper.net/v6/getTile?MCC=234&MNC=30&RAT=LTE&z={z}&x={x}&y={y}&band=20",
+				"CM-4G":CM_TMS_BASE + "30&RAT=LTE&z={z}&x={x}&y={y}&band=0",
+				"CM-L21":CM_TMS_BASE + "30&RAT=LTE&z={z}&x={x}&y={y}&band=1",
+				"CM-L18":CM_TMS_BASE + "30&RAT=LTE&z={z}&x={x}&y={y}&band=3",
+				"CM-L26":CM_TMS_BASE + "30&RAT=LTE&z={z}&x={x}&y={y}&band=7",
+				"CM-L08":CM_TMS_BASE + "30&RAT=LTE&z={z}&x={x}&y={y}&band=20",
 				"4g800":EE_TMS_BASE + "4g_800_ltea",
 				"4g1800":EE_TMS_BASE + "4g_1800_ltea",
 				"4g1800ds":EE_TMS_BASE + "4g_1800_ds_ltea",
@@ -104,12 +125,12 @@ let v = {
 		append_html:function(){
 			for (let op in v.mno_tiles.tiles) {
 				let el = $("<div/>");
-				el.append($("<h2/>").text(op));
+				el.append($("<h4/>").text(op));
 
 				for (let tile in v.mno_tiles.tiles[op]) {
 					el.append(
 						$("<button/>",{
-							"class":"btn btn-outline-dark",
+							"class":"btn btn-dark btn-sm",
 							"data-op":op,
 							"data-tile":tile,
 							"data-tileserver":v.mno_tiles.tiles[op][tile]
@@ -428,7 +449,7 @@ let v = {
 
 	loadData: function () {
 		$.ajax({
-			url: 'api/get-pins/',
+			url: 'api/get-nodes/',
 			type: 'GET',
 			data: v.getDataParameters(),
 			dataType: 'json',
@@ -480,7 +501,14 @@ let v = {
 		});
 	},
 
+	p: {
+		move:function(evt){
+			console.log(evt);
+		}
+	},
+
 	addPointToMap: function (point) {
+		console.log(point);
 		let tLat = point.lat;
 		let tLng = point.lng;
 		let tEnb = point.id;
@@ -504,15 +532,20 @@ let v = {
 			);
 		}
 
-		function pushMarker(siteloc, poptext, tooltext) {
+		function pushMarker(siteloc, poptext, tooltext, point) {
 			v.markers.push(
 				new L.marker(
-					siteloc, {icon: v.m.ico.main}
+					siteloc,
+					{
+						enb:point.id,
+						draggable:true,
+						icon: v.m.ico.main
+					}
 				).bindPopup(
 					poptext, markerPopOpts
 				).bindTooltip(
 					tooltext, markerToolOpts
-				)
+				).on("moveend", v.p.move)
 			);
 		}
 
@@ -537,10 +570,7 @@ let v = {
 		}
 		txt += "</div>";
 
-		pushMarker([tLat, tLng], txt, v.sectorInfo(parseInt(point.mnc), tEnb, Object.keys(point.sectors)));
-		/*v.polygons.push(
-			L.polygon(sectCoords, {color: 'red'})
-		);*/
+		pushMarker([tLat, tLng], txt, v.sectorInfo(parseInt(point.mnc), tEnb, Object.keys(point.sectors)), point);
 	},
 
 	addPointToTable: function (point) {

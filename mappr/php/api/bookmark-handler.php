@@ -1,12 +1,8 @@
 <?php
 
-if (!isset($api_auth) || !$api_auth) die();
+if (empty($api_auth) || $api_auth === false) die();
 
-$output = array(
-	"error"=>true,
-	"message"=>"Unknown",
-	"bookmarks"=>array()
-);
+$output["bookmarks"] = array();
 
 $valid_actions = array("get", "add", "remove");
 if (empty($_POST["action"]) || !in_array($_POST["action"], $valid_actions)) {
