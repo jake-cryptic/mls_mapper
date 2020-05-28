@@ -503,12 +503,32 @@ let v = {
 
 	p: {
 		move:function(evt){
-			console.log(evt);
+			if (!evt) return;
+
+			let send = {
+				mcc:234,
+				mnc:evt.target.options.mnc,
+				enb:evt.target.options.enb,
+				lat:evt.target._latlng.lat,
+				lng:evt.target._latlng.lng
+			};
+
+			$.ajax({
+				url: 'api/update-node/',
+				type: 'POST',
+				data: send,
+				dataType: 'json',
+				success: function (resp) {
+					console.log(resp);
+				},
+				error: function (e) {
+					console.error(e);
+				}
+			});
 		}
 	},
 
 	addPointToMap: function (point) {
-		console.log(point);
 		let tLat = point.lat;
 		let tLng = point.lng;
 		let tEnb = point.id;
@@ -537,6 +557,7 @@ let v = {
 				new L.marker(
 					siteloc,
 					{
+						mnc:point.mnc,
 						enb:point.id,
 						draggable:true,
 						icon: v.m.ico.main

@@ -88,7 +88,9 @@ $allowed_pages = array(
 $allowed_apis = array(
 	"account-handler",
 	"get-mnc",
+	"get-nodes",
 	"get-pins",
 	"lookup-node",
-	"stats"
+	"stats",
+	"update-node"
 );

@@ -2,6 +2,9 @@
 
 require("init.php");
 
+$rqm = strtolower($_SERVER['REQUEST_METHOD']);
+if (!in_array($rqm, array('get', 'post'))) die();
+
 $api_request = false;
 if (!empty($_GET["api"])) {
 	if ($_GET["api"] === "true") {
