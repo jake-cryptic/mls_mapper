@@ -8,7 +8,7 @@ class User {
 	private $email;
 	private $bookmarks;
 
-	public function __constructor($id, $level, $name, $email, $bookmarks){
+	public function __construct($id, $level, $name, $email, $bookmarks){
 		$this->id = $id;
 		$this->level = $level;
 		$this->name = $name;

@@ -560,6 +560,7 @@ let v = {
 						mnc:point.mnc,
 						enb:point.id,
 						draggable:true,
+						autoPan:true,
 						icon: v.m.ico.main
 					}
 				).bindPopup(
