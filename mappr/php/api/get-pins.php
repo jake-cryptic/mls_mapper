@@ -39,10 +39,15 @@ $limitBounds = "";
 if (empty($_GET["swlat"]) || empty($_GET["nelng"]) || empty($_GET["nelat"]) || empty($_GET["swlng"])){
 	die();
 }
-if (!empty($_GET["swlat"])) $limitBounds .= " AND ".DB_MASTS.".lat > " . clean($_GET["swlat"]);
-if (!empty($_GET["nelng"])) $limitBounds .= " AND ".DB_MASTS.".lng < " . clean($_GET["nelng"]);
-if (!empty($_GET["nelat"])) $limitBounds .= " AND ".DB_MASTS.".lat < " . clean($_GET["nelat"]);
-if (!empty($_GET["swlng"])) $limitBounds .= " AND ".DB_MASTS.".lng > " . clean($_GET["swlng"]);
+$sLatSw = clean($_GET["swlat"]);
+$sLngSw = clean($_GET["swlng"]);
+$sLatNe = clean($_GET["nelat"]);
+$sLngNe = clean($_GET["nelng"]);
+
+$limitBounds .= " AND (".DB_MASTS.".lat > {$sLatSw})";
+$limitBounds .= " AND (".DB_MASTS.".lng < {$sLngNe})";
+$limitBounds .= " AND (".DB_MASTS.".lat < {$sLatNe})";
+$limitBounds .= " AND (".DB_MASTS.".lng > {$sLngSw})";
 
 $limitMNC = "AND ".DB_MASTS.".mnc = ".DB_SECTORS.".mnc";
 if ($mnc !== null){

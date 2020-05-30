@@ -35,25 +35,36 @@ if (!empty($_GET["pcis"]) && is_array($_GET["pcis"]) && count($_GET["pcis"]) !==
 $returnData = array();
 
 // SQL parameters that apply to all queries
-$limitBounds = "";
 if (empty($_GET["swlat"]) || empty($_GET["nelng"]) || empty($_GET["nelat"]) || empty($_GET["swlng"])){
 	die();
 }
-if (!empty($_GET["swlat"])) $limitBounds .= " AND ".DB_MASTS.".lat > " . clean($_GET["swlat"]);
-if (!empty($_GET["nelng"])) $limitBounds .= " AND ".DB_MASTS.".lng < " . clean($_GET["nelng"]);
-if (!empty($_GET["nelat"])) $limitBounds .= " AND ".DB_MASTS.".lat < " . clean($_GET["nelat"]);
-if (!empty($_GET["swlng"])) $limitBounds .= " AND ".DB_MASTS.".lng > " . clean($_GET["swlng"]);
 
-$limitMNC = "AND ".DB_MASTS.".mnc = ".DB_SECTORS.".mnc";
-if ($mnc !== null){
-	$limitMNC = "AND ".DB_SECTORS.".mnc={$mnc} AND ".DB_MASTS.".mnc = {$mnc}";
-}
+$sLatSw = clean($_GET["swlat"]);
+$sLngSw = clean($_GET["swlng"]);
+$sLatNe = clean($_GET["nelat"]);
+$sLngNe = clean($_GET["nelng"]);
 
-$limitIds = "";
-if ($enb !== null) {
-	$limitIds = "AND ".DB_MASTS.".enodeb_id = '$enb'";
-} else if (count($enb_range) === 2){
-	$limitIds = "AND ".DB_MASTS.".enodeb_id > {$enb_range[0]} AND ".DB_MASTS.".enodeb_id < {$enb_range[1]}";
+function getSqlParams($dbTbl) {
+	global $sLatSw, $sLngSw, $sLatNe, $sLngNe, $mnc, $enb, $enb_range;
+
+	$limitBounds = " AND ({$dbTbl}.lat > {$sLatSw})";
+	$limitBounds .= " AND ({$dbTbl}.lng < {$sLngNe})";
+	$limitBounds .= " AND ({$dbTbl}.lat < {$sLatNe})";
+	$limitBounds .= " AND ({$dbTbl}.lng > {$sLngSw})";
+
+	$limitMNC = "AND {$dbTbl}.mnc = ".DB_SECTORS.".mnc";
+	if ($mnc !== null){
+		$limitMNC .= " AND ".DB_SECTORS.".mnc={$mnc}";
+	}
+
+	$limitIds = "";
+	if ($enb !== null) {
+		$limitIds = "AND {$dbTbl}.enodeb_id = '{$enb}'";
+	} else if (count($enb_range) === 2){
+		$limitIds = "AND {$dbTbl}.enodeb_id > {$enb_range[0]} AND {$dbTbl}.enodeb_id < {$enb_range[1]}";
+	}
+
+	return "{$limitBounds} {$limitMNC} {$limitIds}";
 }
 
 $limitSectors = "";
@@ -68,23 +79,38 @@ if (count($pci_list) > 0){
 	$limitSectors = "AND ".DB_SECTORS.".pci IN ({$pciSql})";
 }
 
-$sql = "SELECT DISTINCT(".DB_SECTORS.".enodeb_id), ".DB_MASTS.".lat, ".DB_MASTS.".lng, ".DB_SECTORS.".mnc
-		FROM ".DB_SECTORS.", ".DB_MASTS."
-		WHERE ".DB_MASTS.".enodeb_id = ".DB_SECTORS.".enodeb_id
-		{$limitMNC} {$limitIds} {$limitPCIs} {$limitSectors} {$limitBounds}
+$enbList = array();
+foreach (array(DB_LOCATIONS, DB_MASTS) as $dbTbl) {
+	$limitDbTbl = getSqlParams($dbTbl);
+	$sql = "SELECT DISTINCT({$dbTbl}.enodeb_id), {$dbTbl}.id, {$dbTbl}.lat, {$dbTbl}.lng, {$dbTbl}.mnc
+		FROM ".DB_SECTORS.", {$dbTbl}
+		WHERE {$dbTbl}.enodeb_id = ".DB_SECTORS.".enodeb_id
+		{$limitDbTbl} {$limitSectors} {$limitPCIs}
 		LIMIT " . API_LIMIT;
 
-if (DEBUG) die($sql);
+	if (DEBUG) die($sql);
 
-// Run SQL query and return results
-$get_enblist = $db_connection->query($sql);
+	// Run SQL query and return results
+	$get_enblist = $db_connection->query($sql);
+	echo $db_connection->error;
+	while ($node = $get_enblist->fetch_object()) {
+		if (array_key_exists($node->mnc . "_" . $node->enodeb_id, $enbList)) continue;
+
+		$enbList[$node->mnc . "_" . $node->enodeb_id] = array(
+			"lat"=>$node->lat,
+			"lng"=>$node->lng,
+			"verified"=>$dbTbl === DB_LOCATIONS
+		);
+	}
+}
 
 $get_sectors = $db_connection->prepare("SELECT sector_id,pci,created,updated,lat,lng FROM ".DB_SECTORS." WHERE mnc = ? AND enodeb_id = ? LIMIT 50");
 $get_sectors->bind_param("ii",$thisMnc,$thisEnb);
 
-while ($node = $get_enblist->fetch_object()){
-	$thisMnc = $node->mnc;
-	$thisEnb = $node->enodeb_id;
+foreach($enbList as $identifier=>$coords) {
+	$node_id = explode("_", $identifier);
+	$thisMnc = $node_id[0];
+	$thisEnb = $node_id[1];
 
 	if (!$get_sectors->execute()){
 		printf("Database Error: %s\n",$get_sectors->error);
@@ -100,9 +126,9 @@ while ($node = $get_enblist->fetch_object()){
 	}
 	
 	$returnData[] = array(
-		"located_by"=>-1,
-		"lat"=>$node->lat,
-		"lng"=>$node->lng,
+		"verified"=>$coords["verified"],
+		"lat"=>$coords["lat"],
+		"lng"=>$coords["lng"],
 		"id"=>$thisEnb,
 		"mnc"=>$thisMnc,
 		"sectors"=>$sectorList

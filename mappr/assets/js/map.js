@@ -168,7 +168,7 @@ let v = {
 		map: null,
 		ico: {
 			main: null,
-			multiple: null
+			located: null
 		},
 
 		init: function () {
@@ -196,7 +196,7 @@ let v = {
 			});
 
 			v.m.ico.main = new techIcon({iconUrl: 'assets/img/marker-default.png'});
-			v.m.ico.multiple = new techIcon({iconUrl: 'assets/img/marker-multiple.png'});
+			v.m.ico.located = new techIcon({iconUrl: 'assets/img/marker-located.png'});
 		},
 
 		setMap: function(){
@@ -520,6 +520,8 @@ let v = {
 				dataType: 'json',
 				success: function (resp) {
 					console.log(resp);
+					v.m.removeMapItems();
+					v.loadData();
 				},
 				error: function (e) {
 					console.error(e);
@@ -561,7 +563,7 @@ let v = {
 						enb:point.id,
 						draggable:true,
 						autoPan:true,
-						icon: v.m.ico.main
+						icon: (point.verified ? v.m.ico.located : v.m.ico.main)
 					}
 				).bindPopup(
 					poptext, markerPopOpts
