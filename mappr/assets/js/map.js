@@ -248,6 +248,62 @@ let v = {
 		}
 	},
 
+	ui:{
+		popToastMessage:function(msg){
+
+		}
+	},
+
+	osm: {
+		api_base:"https://nominatim.openstreetmap.org/",
+
+		doLocationSearch:function(query) {
+			$.ajax({
+				url: v.osm.api_base + "search",
+				data: "q=" + query + "&format=json&limit=1" + "&callback=?",
+				type: "GET",
+				dataType: "json",
+				timeout:15,
+				success: function(resp) {
+					if (!resp[0]) {
+						v.ui.popToastMessage("According to OSM, that isn't a valid location.");
+						return;
+					}
+
+					v.m.map.setView([parseFloat(resp[0].lat), parseFloat(resp[0].lon)], 16);
+				},
+				error: function(e) {
+					if (!navigator.onLine){
+						v.ui.popToastMessage("You don't seem to be connected to the internet...");
+					} else {
+						v.ui.popToastMessage("Error searching for location.");
+					}
+				}
+			});
+		},
+
+		getApproxLocation:function(lat, lng, cb) {
+			$.ajax({
+				url: v.osm.api_base + "reverse",
+				data: "lat=" + lat + "&lon=" + lng + "&format=json&limit=1" + "&callback=?",
+				type: "GET",
+				dataType: "json",
+				timeout:15,
+				success: function(resp) {
+					let ret = "Address could not be found.";
+					if (resp && resp.display_name) {
+						ret = resp.display_name;
+					}
+
+					cb(ret);
+				},
+				error: function(e) {
+					cb(navigator.onLine ? "API error" : "Internet connection not available.");
+				}
+			});
+		}
+	},
+
 	assignEvents: function() {
 		$("#mobile_country_code").on("change", v.changeMno);
 		$("#map_name").on("change", v.m.setMap);
@@ -617,7 +673,7 @@ let v = {
 	},
 
 	goToHereData:function(){
-		v.m.map.setView([$(this).data("lat"), $(this).data("lng")], 18);
+		v.m.map.setView([$(this).data("lat"), $(this).data("lng")], 16);
 	}
 };
 
