@@ -15,6 +15,8 @@ let v = {
 	mno: 0,
 	mcc: 234,
 
+	current_request:null,
+
 	markers: [],
 	polygons: [],
 
@@ -48,12 +50,12 @@ let v = {
 	},
 
 	sidebar: {
-		activeTab:"results",
+		activeTab:"map_settings",
 
 		assignEvents:function() {
 			v.mno_tiles.append_html();
 
-			$("#results").show();
+			$("#" + v.sidebar.activeTab).show();
 			$("[data-sidebartab]").each(function(){
 				$(this).on("click enter", function(){
 					$("a.active.nav-link").removeClass("active");
@@ -75,7 +77,28 @@ let v = {
 			v.showMls = $("#adv_map_show_mls").is(":checked");
 			v.showVerified = $("#adv_map_show_verified").is(":checked");
 
-			v.reloadMap();
+			v.m.reloadMap();
+		}
+	},
+
+	bookmarks: {
+		assignEvents:function(){
+			$("#bookmarks_reload").on("click enter", v.bookmarks.getList);
+
+		},
+
+		add:function(){
+
+		},
+
+		remove:function(){
+
+		},
+
+		getList:function(){
+			$.post("api/bookmark-hander", {action:'get'}).done(function(resp){
+				console.log(resp);
+			});
 		}
 	},
 
@@ -202,6 +225,10 @@ let v = {
 
 		clearMoveTimer:function(){
 			if (v.m.moveTimer) clearTimeout(v.m.moveTimer);
+			if (v.current_request) {
+				v.current_request.abort();
+				v.poptoast('Node loading has been paused due to map move', true);
+			}
 		},
 
 		startMoveTimer:function(){
@@ -264,6 +291,8 @@ let v = {
 		},
 
 		reloadMap: function() {
+			document.title = "Reloading Map...";
+			v.poptoast("Loading map data...", false);
 			v.m.removeMapItems();
 			v.loadData();
 		},
@@ -280,6 +309,14 @@ let v = {
 			v.polygons = [];
 			v.markers = [];
 		}
+	},
+
+	poptoast:function(txt, autohide){
+		$("#toast_content_body").text(txt);
+		$('#toast_content').attr('data-autohide', autohide).toast('show');
+	},
+	burntoast:function(){
+		$('#toast_content').attr('data-autohide', true).toast('hide');
 	},
 
 	u: {
@@ -313,12 +350,13 @@ let v = {
 			let url = obj.origin + obj.pathname + "?";
 
 			let loc = v.m.map.getCenter();
+			let zoom = v.m.map.getZoom();
 			let params = {
-				"mcc": 234,
+				"mcc": v.mcc,
 				"mnc": v.mno,
 				"lat": loc.lat || -1.5,
 				"lng": loc.lng || 52,
-				"zoom": v.m.map.getZoom() || 13
+				"zoom": zoom || 13
 			};
 
 			let newUrl = url + v.u.serialiseObject(params);
@@ -399,7 +437,7 @@ let v = {
 	assignEvents: function() {
 		$("#advanced_search").on("click enter", function () {
 			$("#searchPopup").modal("hide");
-			v.reloadMap();
+			v.m.reloadMap();
 		});
 		$("#mobile_country_code").on("change", v.changeMno);
 		$("#map_name").on("change", v.m.setMap);
@@ -411,7 +449,7 @@ let v = {
 	changeMno: function() {
 		v.mno = parseInt($(this).val());
 		v.updateMncOpts();
-		v.reloadMap();
+		v.m.reloadMap();
 	},
 
 	doNodeSearch: function() {
@@ -445,7 +483,7 @@ let v = {
 		let result = resp[0];
 
 		v.m.map.setView([result.lat, result.lng], 15);
-		v.reloadMap();
+		v.m.reloadMap();
 	},
 
 	getMncData: function () {
@@ -597,14 +635,14 @@ let v = {
 
 		data["mnc"] = v.mno;
 
-		data["alldata"] = v.showMls && v.showVerified;
-		data["showmls"] = v.showMls;
+		if (v.showMls && v.showVerified) data["alldata"] = 1;
+		if (v.showMls && !v.showVerified) data["showmls"] = 1;
 
 		return data;
 	},
 
 	loadData: function () {
-		$.ajax({
+		v.current_request = $.ajax({
 			url: 'api/get-nodes/',
 			type: 'GET',
 			data: v.getDataParameters(),
@@ -623,7 +661,7 @@ let v = {
 		t += '<br /><strong>Lon:</strong><input type="text" readonly value="' + lng + '" />';
 		t += '<br />View area on:';
 		t += '<br /><a href="https://www.google.co.uk/maps/search/' + lat + ',' + lng + '/" target="_blank">Google Maps</a>';
-		t += '<br /><a href="https://www.cellmapper.net/map?MCC=234&MNC=' + mnc + '&type=LTE&latitude=' + lat + '&longitude=' + lng + '&zoom=16&clusterEnabled=false" target="_blank">Cell Mapper</a>';
+		t += '<br /><a href="https://www.cellmapper.net/map?MCC=234&MNC=' + mnc + '&type=LTE&latitude=' + lat + '&longitude=' + lng + '&zoom=15&clusterEnabled=false" target="_blank">Cell Mapper</a>';
 
 		return t;
 	},
@@ -640,12 +678,14 @@ let v = {
 		return '#' + sectorMD5.substring(0, 6);
 	},
 
-	viewData: function (data) {
+	viewData: function (data){
 		$("#results_tbl").empty();
 
-		for (let i = 0; i < data.length; i++) {
-			v.addPointToMap(data[i]);
-			v.addPointToTable(data[i]);
+		v.poptoast('Parsing data from server...', false);
+
+		for (let i = 0; i < data.results.length; i++) {
+			v.addPointToMap(data.results[i]);
+			v.addPointToTable(data.results[i]);
 		}
 
 		// Display items on map
@@ -655,6 +695,9 @@ let v = {
 		v.polygons.forEach(function (polygon) {
 			v.m.map.addLayer(polygon);
 		});
+
+		v.burntoast();
+		document.title = "Mappr";
 	},
 
 	p: {
@@ -662,7 +705,7 @@ let v = {
 			if (!evt) return;
 
 			let send = {
-				mcc:234,
+				mcc:v.mcc,
 				mnc:evt.target.options.mnc,
 				enb:evt.target.options.enb,
 				lat:evt.target._latlng.lat,
@@ -676,7 +719,7 @@ let v = {
 				dataType: 'json',
 				success: function (resp) {
 					console.log(resp);
-					v.reloadMap();
+					v.m.reloadMap();
 				},
 				error: function (e) {
 					console.error(e);

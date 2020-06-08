@@ -2,6 +2,16 @@
 
 if (empty($api_auth) || $api_auth === false) die();
 
+$timings = array(
+	"start"=>array(round(array_sum( explode( ' ' , microtime() ) ),4), 0)
+);
+function t($label) {
+	global $timings;
+
+	$thisTime = array_sum( explode( ' ' , microtime() ) );
+	$timings[$label] = array($thisTime, round($thisTime - $timings["start"][0], 4));
+}
+
 // MNC
 $mnc = null;
 if (!empty($_GET["mnc"]) && is_numeric($_GET["mnc"])) {
@@ -44,6 +54,8 @@ $sLngSw = clean($_GET["swlng"]);
 $sLatNe = clean($_GET["nelat"]);
 $sLngNe = clean($_GET["nelng"]);
 
+t("Get Base Parameters");
+
 function getSqlParams($dbTbl) {
 	global $sLatSw, $sLngSw, $sLatNe, $sLngNe, $mnc, $enb, $enb_range;
 
@@ -79,6 +91,8 @@ if (count($pci_list) > 0){
 	$limitSectors = "AND ".DB_SECTORS.".pci IN ({$pciSql})";
 }
 
+t("Get Extended Parameters");
+
 $fetchWithUserLocations = true;
 if (!empty($_GET["alldata"])){
 	$fetchWithUserLocations = true;
@@ -96,6 +110,8 @@ if ($fetchWithUserLocations) {
 if ($fetchEstimatedLocations) {
 	$dbTblList = array(DB_MASTS);
 }
+
+t("Get DbTbl Parameters");
 
 $enbList = array();
 foreach ($dbTblList as $dbTbl) {
@@ -120,11 +136,14 @@ foreach ($dbTblList as $dbTbl) {
 			"verified"=>$dbTbl === DB_LOCATIONS
 		);
 	}
+
+	t("Get Results for " . $dbTbl);
 }
 
 $get_sectors = $db_connection->prepare("SELECT sector_id,pci,created,updated,lat,lng FROM ".DB_SECTORS." WHERE mnc = ? AND enodeb_id = ? LIMIT 50");
 $get_sectors->bind_param("ii",$thisMnc,$thisEnb);
 
+t("Prepare stmt");
 foreach($enbList as $identifier=>$coords) {
 	$node_id = explode("_", $identifier);
 	$thisMnc = $node_id[0];
@@ -152,5 +171,11 @@ foreach($enbList as $identifier=>$coords) {
 		"sectors"=>$sectorList
 	);
 }
+t("Process eNBs");
 
-die(json_encode($returnData,JSON_PRETTY_PRINT));
+$returnSet = array(
+	"timings"=>$timings,
+	"results"=>$returnData
+);
+
+die(json_encode($returnSet,JSON_PRETTY_PRINT));

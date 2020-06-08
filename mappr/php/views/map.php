@@ -72,15 +72,15 @@
 
 	<div id="sidebar">
 		<nav class="nav nav-pills nav-justified">
-			<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="map_settings"><i class="fas fa-map-marked-alt"></i></a>
-			<a class="nav-item nav-link active" href="#" data-sidebartab="results"><i class="fas fa-broadcast-tower"></i></a>
-			<a class="nav-item nav-link" href="#" data-sidebartab="user_pane"><i class="fas fa-user-alt"></i></a>
-			<a class="nav-item nav-link" href="#" data-sidebartab="bookmarks"><i class="fas fa-bookmark"></i></a>
+			<a class="nav-item nav-link active" href="#" role="tab" data-sidebartab="map_settings"><i class="fas fa-map-marked-alt"></i></a>
+			<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="results"><i class="fas fa-broadcast-tower"></i></a>
+			<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="user_pane"><i class="fas fa-user-alt"></i></a>
+			<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="bookmarks"><i class="fas fa-bookmark"></i></a>
 		</nav>
 		<div class="tab-content">
 			<div class="tab-pane" id="map_settings">
 				<h2>Map Settings</h2>
-				<fieldset>
+				<fieldset disabled="true">
 					<legend>Results Options</legend>
 					<label for="adv_map_show_verified">Show Located Nodes</label>
 					<input type="checkbox" name="adv_map_show_verified" id="adv_map_show_verified" checked="checked" />
@@ -109,24 +109,26 @@
 			<div class="tab-pane" id="results">
 				<table>
 					<thead>
-					<tr>
-						<th>MNC</th>
-						<th>eNB</th>
-						<th>Sectors</th>
-					</tr>
+						<tr>
+							<th>MNC</th>
+							<th>eNB</th>
+							<th>Sectors</th>
+						</tr>
 					</thead>
 					<tbody id="results_tbl">
-					<tr>
-						<td colspan="3">No data</td>
-					</tr>
+						<tr>
+							<td colspan="3">No data</td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
 			<div class="tab-pane" id="user_pane">
 				<h2>User Settings</h2>
+				<span>Nothing here yet</span>
 			</div>
 			<div class="tab-pane" id="bookmarks">
 				<h2>Bookmarked Locations</h2>
+				<button id="bookmarks_reload" class="btn btn-primary">Reload List</button>
 			</div>
 		</div>
 	</div>

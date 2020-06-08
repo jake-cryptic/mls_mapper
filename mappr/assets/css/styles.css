@@ -25,6 +25,12 @@ select {
 	position:absolute;
 }
 
+.toast {
+	z-index: 9999;
+	position:absolute;
+	top:5rem;
+}
+
 #page {
 	width:100%;
 	height:calc(100vh - 3em);
