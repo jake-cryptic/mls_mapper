@@ -9,9 +9,10 @@
 		?>
 	</select>
 
-	<input type="search" name="enb_search" id="enb_search" placeholder="Search for eNodeB" />
+	<input type="search" name="enb_search" id="enb_search" placeholder="Search eNBs" />
 	<button type="button" class="btn btn-primary" id="enb_search_submit"><i class="fas fa-search"></i></button>
 
+	<button type="button" class="btn btn-secondary" id="sidebar_toggle"><i class="fas fa-bars"></i></button>
 	<button type="button" class="btn btn-primary" id="locate_user_manual"><i class="fas fa-location-arrow"></i></button>
 	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchPopup"><i class="fas fa-caret-square-down"></i></button>
 </div>

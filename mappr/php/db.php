@@ -1,10 +1,17 @@
 <?php
 
 // Database logins
-DEFINE("DB_USERNAME","root");
-DEFINE("DB_DATABASE","lte_jcellsort");
-DEFINE("DB_PASSWORD","");
-DEFINE("DB_HOSTNAME","localhost");
+if ($_SERVER["SERVER_NAME"] === "localhost") {
+	DEFINE("DB_USERNAME","root");
+	DEFINE("DB_DATABASE","lte_jcellsort");
+	DEFINE("DB_PASSWORD","");
+	DEFINE("DB_HOSTNAME","localhost");
+} else {
+	DEFINE("DB_USERNAME","u953270795_mappr");
+	DEFINE("DB_DATABASE","u953270795_mappr");
+	DEFINE("DB_PASSWORD","phErYip03fnvu!!dscsASDPP");
+	DEFINE("DB_HOSTNAME","mysql.hostinger.co.uk");
+}
 
 DEFINE("DB_USERS","users");
 DEFINE("DB_BOOKMARKS","bookmarks");

@@ -44,8 +44,16 @@ let v = {
 	},
 
 	getLocation: function (cb) {
-		navigator.geolocation.getCurrentPosition(function (position) {
-			cb(position.coords.latitude, position.coords.longitude);
+		navigator.permissions.query({name:"geolocation"}).then(function(resp){
+			if (resp && resp.state) {
+				if (resp.state === "granted" || resp.state === "prompt") {
+					navigator.geolocation.getCurrentPosition(function (position) {
+						cb(position.coords.latitude, position.coords.longitude);
+					});
+				}
+			}
+
+			v.ui.popToastMessage('No permission found to get your current location. Please allow access');
 		});
 	},
 
@@ -64,6 +72,8 @@ let v = {
 				});
 			});
 
+			$("#sidebar_toggle").on("click enter", v.sidebar.toggleView);
+
 			$("#adv_map_show_mls, #adv_map_show_verified").on("change", v.sidebar.toggleDbResults);
 
 			$("#do_world_location_search").on("click enter", function(){
@@ -72,6 +82,21 @@ let v = {
 			$("#world_location_search").on("keypress", function(evt){
 				if (evt.keyCode === 13) v.osm.doLocationSearch($("#world_location_search").val());
 			});
+		},
+
+		toggleView:function(){
+			if (window.innerWidth > 768) {
+				if ($("#sidebar").is(":visible")) {
+					$("#sidebar").hide();
+					$("#map").css("width", "100%");
+				} else {
+					$("#sidebar").show();
+					$("#map").css("width", "80%");
+				}
+			} else {
+				$("#sidebar").toggle();
+				$("#map").toggle();
+			}
 		},
 
 		switchTab:function(newTab) {
@@ -244,7 +269,7 @@ let v = {
 
 		moveToCurrentLocation: function() {
 			v.getLocation(function (lat, lon) {
-				v.m.map.setView([lat, lon], v.m.zoom);
+				v.m.map.setView([lat, lon], 14);
 			});
 		},
 
@@ -515,6 +540,8 @@ let v = {
 				console.error(e);
 			}
 		});
+
+		document.title = "Mappr [Alpha]";
 	},
 
 	updateMncData: function (data) {
