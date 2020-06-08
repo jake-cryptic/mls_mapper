@@ -12,7 +12,7 @@
 	<input type="search" name="enb_search" id="enb_search" placeholder="Search for eNodeB" />
 	<button type="button" class="btn btn-primary" id="enb_search_submit"><i class="fas fa-search"></i></button>
 
-	<button type="button" class="btn btn-primary"><i class="fas fa-location-arrow"></i></button>
+	<button type="button" class="btn btn-primary" id="locate_user_manual"><i class="fas fa-location-arrow"></i></button>
 	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchPopup"><i class="fas fa-caret-square-down"></i></button>
 </div>
 
@@ -99,6 +99,11 @@
 						<option value='tro'>G Terrain Only</option>
 						<option value='sat'>G Sat Only</option>
 					</select>
+					<hr/>
+					<label for="world_location_search">Search for a location...</label>
+					<input class="form-control" type="text" maxlength="250" minlength="2" id="world_location_search" name="world_location_search" placeholder="Enter an address" />
+					<button id="do_world_location_search" class="btn btn-secondary">Search!</button>
+					<hr/>
 				</fieldset>
 				<fieldset id="operator_maps">
 					<legend>Operator Maps</legend>

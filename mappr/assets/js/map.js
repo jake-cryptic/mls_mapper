@@ -65,6 +65,13 @@ let v = {
 			});
 
 			$("#adv_map_show_mls, #adv_map_show_verified").on("change", v.sidebar.toggleDbResults);
+
+			$("#do_world_location_search").on("click enter", function(){
+				v.osm.doLocationSearch($("#world_location_search").val());
+			});
+			$("#world_location_search").on("keypress", function(evt){
+				if (evt.keyCode === 13) v.osm.doLocationSearch($("#world_location_search").val());
+			});
 		},
 
 		switchTab:function(newTab) {
@@ -227,7 +234,7 @@ let v = {
 			if (v.m.moveTimer) clearTimeout(v.m.moveTimer);
 			if (v.current_request) {
 				v.current_request.abort();
-				v.poptoast('Node loading has been paused due to map move', true);
+				v.ui.popToastMessage('Node loading has been paused due to map move', true);
 			}
 		},
 
@@ -292,7 +299,7 @@ let v = {
 
 		reloadMap: function() {
 			document.title = "Reloading Map...";
-			v.poptoast("Loading map data...", false);
+			v.ui.popToastMessage("Loading map data...", false);
 			v.m.removeMapItems();
 			v.loadData();
 		},
@@ -311,13 +318,6 @@ let v = {
 		}
 	},
 
-	poptoast:function(txt, autohide){
-		$("#toast_content_body").text(txt);
-		$('#toast_content').attr('data-autohide', autohide).toast('show');
-	},
-	burntoast:function(){
-		$('#toast_content').attr('data-autohide', true).toast('hide');
-	},
 
 	u: {
 		h:window.history,
@@ -371,7 +371,7 @@ let v = {
 				v.loadedFromParams = true;
 				v.mno = parseInt(obj.mnc);
 				v.m.defaultCoords = [obj.lat, obj.lng];
-				v.zoom = obj.zoom;
+				v.m.zoom = parseInt(obj.zoom);
 			}
 
 			if (cb) cb();
@@ -379,8 +379,12 @@ let v = {
 	},
 
 	ui:{
-		popToastMessage:function(msg){
-
+		popToastMessage:function(txt, autohide){
+			$("#toast_content_body").text(txt);
+			$('#toast_content').attr('data-autohide', autohide).toast('show');
+		},
+		burnToastMessage:function(){
+			$('#toast_content').attr('data-autohide', true).toast('hide');
 		}
 	},
 
@@ -392,21 +396,21 @@ let v = {
 				url: v.osm.api_base + "search",
 				data: "q=" + query + "&format=json&limit=1" + "&callback=?",
 				type: "GET",
-				dataType: "json",
-				timeout:15,
+				timeout:15000,
 				success: function(resp) {
 					if (!resp[0]) {
-						v.ui.popToastMessage("According to OSM, that isn't a valid location.");
+						v.ui.popToastMessage("According to OSM, that isn't a valid location.", true);
 						return;
 					}
 
-					v.m.map.setView([parseFloat(resp[0].lat), parseFloat(resp[0].lon)], 16);
+					v.ui.popToastMessage("You have been teleported!");
+					v.m.map.setView([parseFloat(resp[0].lat), parseFloat(resp[0].lon)], 14);
 				},
 				error: function(e) {
 					if (!navigator.onLine){
-						v.ui.popToastMessage("You don't seem to be connected to the internet...");
+						v.ui.popToastMessage("You don't seem to be connected to the internet...", true);
 					} else {
-						v.ui.popToastMessage("Error searching for location.");
+						v.ui.popToastMessage("Error searching for location.", true);
 					}
 				}
 			});
@@ -442,6 +446,7 @@ let v = {
 		$("#mobile_country_code").on("change", v.changeMno);
 		$("#map_name").on("change", v.m.setMap);
 		$("#enb_search_submit").on("click enter", v.doNodeSearch);
+		$("#locate_user_manual").on("click enter", v.m.moveToCurrentLocation);
 
 		v.sidebar.assignEvents();
 	},
@@ -449,6 +454,7 @@ let v = {
 	changeMno: function() {
 		v.mno = parseInt($(this).val());
 		v.updateMncOpts();
+		v.u.updateUrl();
 		v.m.reloadMap();
 	},
 
@@ -681,7 +687,7 @@ let v = {
 	viewData: function (data){
 		$("#results_tbl").empty();
 
-		v.poptoast('Parsing data from server...', false);
+		v.ui.popToastMessage('Parsing data from server...', false);
 
 		for (let i = 0; i < data.results.length; i++) {
 			v.addPointToMap(data.results[i]);
@@ -696,7 +702,7 @@ let v = {
 			v.m.map.addLayer(polygon);
 		});
 
-		v.burntoast();
+		v.ui.burnToastMessage();
 		document.title = "Mappr";
 	},
 
