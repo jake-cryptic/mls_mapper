@@ -20,6 +20,11 @@ select {
 	width: 25%;
 }
 
+#toast_section {
+	min-height: 200px;
+	position:absolute;
+}
+
 #page {
 	width:100%;
 	height:calc(100vh - 3em);
@@ -54,6 +59,12 @@ select {
 	display:inline-block;
 	float:none;
 	width:33.333%;
+}
+
+#toast_container {
+	position: absolute;
+	top:3em;
+	right:0;
 }
 
 table {

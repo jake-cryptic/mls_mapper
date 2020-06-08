@@ -166,6 +166,8 @@ let v = {
 	m: {
 		zoom: 10,
 		map: null,
+		moveTimer:null,
+		moveTimerDuration:1000,
 		ico: {
 			main: null,
 			located: null
@@ -176,8 +178,20 @@ let v = {
 			v.m.moveToCurrentLocation();
 			v.m.map.addEventListener('contextmenu', v.m.mapMove);
 
+			v.m.map.addEventListener('movestart', v.m.clearMoveTimer);
+			v.m.map.addEventListener('move', v.m.clearMoveTimer);
+			v.m.map.addEventListener('moveend', v.m.startMoveTimer);
+
 			v.m.changeMap("rdi");
 			v.m.initIcons();
+		},
+
+		clearMoveTimer:function(){
+			if (v.m.moveTimer) clearTimeout(v.m.moveTimer);
+		},
+
+		startMoveTimer:function(){
+			v.m.moveTimer = setTimeout(v.m.mapMove, v.m.moveTimerDuration);
 		},
 
 		moveToCurrentLocation: function() {
@@ -229,6 +243,8 @@ let v = {
 		},
 
 		mapMove: function (evt) {
+			v.u.updateUrl();
+
 			console.log(evt);
 			v.m.removeMapItems();
 			v.loadData();
@@ -245,6 +261,39 @@ let v = {
 
 			v.polygons = [];
 			v.markers = [];
+		}
+	},
+
+	u: {
+		h:window.history,
+
+		serialiseObject: function(obj){
+			let str = "";
+			for (let key in obj) {
+				if (str != "") str += "&";
+
+				str += key + "=" + encodeURIComponent(obj[key]);
+			}
+
+			return str;
+		},
+
+		updateUrl:function() {
+			let obj = window.location;
+			let url = obj.origin + obj.pathname + "?";
+
+			let loc = v.m.map.getCenter();
+			let params = {
+				"mcc": 234,
+				"mnc": v.mno,
+				"lat": loc.lat || -1.5,
+				"lng": loc.lng || 52,
+				"zoom": v.m.map.getZoom() || 13
+			};
+
+			let newUrl = url + v.u.serialiseObject(params);
+
+			v.u.h.pushState(params, "Viewing " + params['mnc'], newUrl);
 		}
 	},
 
