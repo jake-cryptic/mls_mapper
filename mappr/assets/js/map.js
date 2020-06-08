@@ -6,8 +6,15 @@ const CM_TMS_BASE = "https://api.cellmapper.net/v6/getTile?MCC=234&MNC=";
 let v = {
 	mLimit: 5000,
 	sLimit: 36,
+
+	loadedFromParams:false,
+
+	showVerified:true,
+	showMls:true,
+
 	mno: 0,
 	mcc: 234,
+
 	markers: [],
 	polygons: [],
 
@@ -31,13 +38,7 @@ let v = {
 		document.title = "Loading Map...";
 		v.m.init();
 		v.assignEvents();
-		v.sidebar.assignEvents();
 		v.getMncData();
-
-		$("#advanced_search").on("click enter", function () {
-			$("#searchPopup").modal("hide");
-			v.loadData();
-		});
 	},
 
 	getLocation: function (cb) {
@@ -60,12 +61,21 @@ let v = {
 					v.sidebar.switchTab($(this).data("sidebartab"));
 				});
 			});
+
+			$("#adv_map_show_mls, #adv_map_show_verified").on("change", v.sidebar.toggleDbResults);
 		},
 
 		switchTab:function(newTab) {
 			$("#" + v.sidebar.activeTab).hide();
 			$("#" + newTab).show();
 			v.sidebar.activeTab = newTab;
+		},
+
+		toggleDbResults:function(){
+			v.showMls = $("#adv_map_show_mls").is(":checked");
+			v.showVerified = $("#adv_map_show_verified").is(":checked");
+
+			v.reloadMap();
 		}
 	},
 
@@ -165,6 +175,8 @@ let v = {
 
 	m: {
 		zoom: 10,
+		defaultCoords:[52.5201508, -1.5807446],
+
 		map: null,
 		moveTimer:null,
 		moveTimerDuration:1000,
@@ -174,8 +186,10 @@ let v = {
 		},
 
 		init: function () {
-			v.m.map = L.map('map').setView([52.5201508, -1.5807446], v.m.zoom);
-			v.m.moveToCurrentLocation();
+			v.m.map = L.map('map').setView(v.m.defaultCoords, v.m.zoom);
+			if (!v.loadedFromParams) {
+				v.m.moveToCurrentLocation();
+			}
 			v.m.map.addEventListener('contextmenu', v.m.mapMove);
 
 			v.m.map.addEventListener('movestart', v.m.clearMoveTimer);
@@ -246,6 +260,10 @@ let v = {
 			v.u.updateUrl();
 
 			console.log(evt);
+			v.m.reloadMap();
+		},
+
+		reloadMap: function() {
 			v.m.removeMapItems();
 			v.loadData();
 		},
@@ -278,6 +296,18 @@ let v = {
 			return str;
 		},
 
+		deserialiseObject: function(str){
+			let parts = str.split("&");
+
+			let obj = {};
+			for (let token in parts) {
+				let kvpair = parts[token].split("=");
+				obj[kvpair[0]] = decodeURIComponent(kvpair[1]);
+			}
+
+			return obj;
+		},
+
 		updateUrl:function() {
 			let obj = window.location;
 			let url = obj.origin + obj.pathname + "?";
@@ -294,6 +324,19 @@ let v = {
 			let newUrl = url + v.u.serialiseObject(params);
 
 			v.u.h.pushState(params, "Viewing " + params['mnc'], newUrl);
+		},
+
+		loadParams:function (cb) {
+			let obj = v.u.deserialiseObject(window.location.search.substring(1));
+
+			if (Object.keys(obj).length > 4) {
+				v.loadedFromParams = true;
+				v.mno = parseInt(obj.mnc);
+				v.m.defaultCoords = [obj.lat, obj.lng];
+				v.zoom = obj.zoom;
+			}
+
+			if (cb) cb();
 		}
 	},
 
@@ -354,16 +397,21 @@ let v = {
 	},
 
 	assignEvents: function() {
+		$("#advanced_search").on("click enter", function () {
+			$("#searchPopup").modal("hide");
+			v.reloadMap();
+		});
 		$("#mobile_country_code").on("change", v.changeMno);
 		$("#map_name").on("change", v.m.setMap);
 		$("#enb_search_submit").on("click enter", v.doNodeSearch);
+
+		v.sidebar.assignEvents();
 	},
 
 	changeMno: function() {
 		v.mno = parseInt($(this).val());
-		v.m.removeMapItems();
 		v.updateMncOpts();
-		v.loadData();
+		v.reloadMap();
 	},
 
 	doNodeSearch: function() {
@@ -397,7 +445,7 @@ let v = {
 		let result = resp[0];
 
 		v.m.map.setView([result.lat, result.lng], 15);
-		v.loadData();
+		v.reloadMap();
 	},
 
 	getMncData: function () {
@@ -549,6 +597,9 @@ let v = {
 
 		data["mnc"] = v.mno;
 
+		data["alldata"] = v.showMls && v.showVerified;
+		data["showmls"] = v.showMls;
+
 		return data;
 	},
 
@@ -625,8 +676,7 @@ let v = {
 				dataType: 'json',
 				success: function (resp) {
 					console.log(resp);
-					v.m.removeMapItems();
-					v.loadData();
+					v.reloadMap();
 				},
 				error: function (e) {
 					console.error(e);
@@ -726,4 +776,4 @@ let v = {
 	}
 };
 
-v.init();
+v.u.loadParams(v.init);

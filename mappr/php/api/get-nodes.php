@@ -79,8 +79,26 @@ if (count($pci_list) > 0){
 	$limitSectors = "AND ".DB_SECTORS.".pci IN ({$pciSql})";
 }
 
+$fetchWithUserLocations = true;
+if (!empty($_GET["alldata"])){
+	$fetchWithUserLocations = true;
+}
+
+$fetchEstimatedLocations = false;
+if (!empty($_GET["onlymls"])){
+	$fetchEstimatedLocations = true;
+}
+
+$dbTblList = array(DB_LOCATIONS);
+if ($fetchWithUserLocations) {
+	$dbTblList = array(DB_LOCATIONS, DB_MASTS);
+}
+if ($fetchEstimatedLocations) {
+	$dbTblList = array(DB_MASTS);
+}
+
 $enbList = array();
-foreach (array(DB_LOCATIONS, DB_MASTS) as $dbTbl) {
+foreach ($dbTblList as $dbTbl) {
 	$limitDbTbl = getSqlParams($dbTbl);
 	$sql = "SELECT DISTINCT({$dbTbl}.enodeb_id), {$dbTbl}.id, {$dbTbl}.lat, {$dbTbl}.lng, {$dbTbl}.mnc
 		FROM ".DB_SECTORS.", {$dbTbl}

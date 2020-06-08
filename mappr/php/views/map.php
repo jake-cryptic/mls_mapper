@@ -81,6 +81,13 @@
 			<div class="tab-pane" id="map_settings">
 				<h2>Map Settings</h2>
 				<fieldset>
+					<legend>Results Options</legend>
+					<label for="adv_map_show_verified">Show Located Nodes</label>
+					<input type="checkbox" name="adv_map_show_verified" id="adv_map_show_verified" checked="checked" />
+					<label for="adv_map_show_mls">Show MLS Nodes</label>
+					<input type="checkbox" name="adv_map_show_mls" id="adv_map_show_mls" checked="checked" />
+				</fieldset>
+				<fieldset>
 					<legend>Base Map</legend>
 					<select id="map_name">
 						<option value='osm'>OSM</option>
