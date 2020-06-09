@@ -87,4 +87,5 @@ HTMLTABLE;
 		</div>
 	</div>
 </div>
+<script type="text/javascript" src="assets/js/util.js"></script>
 <script type="text/javascript" src="assets/js/stats.js"></script>

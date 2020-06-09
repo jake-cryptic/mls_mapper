@@ -57,13 +57,18 @@ let config = {
 };
 window.chart = new Chart(ctx, config);
 
+function getColor(str){
+	return "#" + MD5(str).substr(0,6);
+}
+
 function updateChart(resp, mnc, title) {
 	let data = resp.results;
 	let keys = Object.keys(data);
+	let col = getColor(title + mnc);
 	let newLine = {
 		label: title,
-		backgroundColor: mncColors[mnc],
-		borderColor: mncColors[mnc],
+		backgroundColor: col,
+		borderColor: col,
 		data: [],
 		showLine:true,
 		fill:false,

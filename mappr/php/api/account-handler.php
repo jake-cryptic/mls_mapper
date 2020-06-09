@@ -42,7 +42,7 @@ if ($_POST["form_type"] === "create") {
 		output();
 	}
 	$name = clean($_POST["name"]);
-	if (strlen($name) > 255 && ctype_alnum($name)) {
+	if (strlen($name) > 255 || !ctype_alnum($name)) {
 		$output["message"] = "Name failed validation";
 		output();
 	}
