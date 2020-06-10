@@ -92,5 +92,6 @@ $allowed_apis = array(
 	"get-pins",
 	"lookup-node",
 	"stats",
-	"update-node"
+	"update-node",
+	"user-info"
 );

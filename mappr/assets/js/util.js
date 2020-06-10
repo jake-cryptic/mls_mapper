@@ -15,7 +15,7 @@ let tile2lat = function(y,z) {
 };
 
 let round = function(n, dp){
-	var exp = Math.pow(10,dp);
+	let exp = Math.pow(10,dp);
 	return Math.floor(Math.round(n*exp))/exp;
 };
 

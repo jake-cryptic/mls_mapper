@@ -8,6 +8,7 @@
 		<meta content="#1a1a1a" name="theme-color" />
 
 		<link rel="stylesheet" type="text/css" href="assets/css/styles.css?v=<?php echo $fv; ?>" />
+		<link rel="manifest" href="manifest.json" />
 
 		<!-- Fonts -->
 		<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,800;1,400&display=swap" rel="stylesheet" />

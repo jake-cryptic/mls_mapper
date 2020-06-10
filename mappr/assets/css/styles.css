@@ -123,24 +123,35 @@ tr td:nth-child(2){
 	flex: 1 0;
 }
 
+.leaflet-popup-content {
+	text-align:center;
+}
+
 .site_popup_title {
-	font-size: 1.6em;
+	font-size: 1.4em;
 	font-weight: 600;
-	margin: .5em 0 .25em 0;
-	text-align: center;
+	margin:0;
+	display: block;
+}
+
+.site_popup_links {
+	font-weight: 600;
 	display: block;
 }
 
 .sect {
 	display: block;
-	padding: 0.5em;
+	font-size:1.2em;
+	line-height:1.2em;
+	padding:0.4em 0.5em;
 	float: left;
 	background-color: #1a1a1a;
 	color: #fff;
 }
 
 .sect_block {
-	display: block;
+	margin-top:0.2rem;
+	display:inline-block;
 	height: auto;
 	min-height: 2em;
 }

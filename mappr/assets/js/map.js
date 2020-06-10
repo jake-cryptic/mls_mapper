@@ -688,13 +688,14 @@ let v = {
 	},
 
 	getPopupText: function (enb, mnc, lat, lng) {
-		let t = enb;
+		let t = '<span class="site_popup_title">'+enb+'</span>';
 
-		t += '<br /><strong>Lat:</strong><input type="text" readonly value="' + lat + '" />';
-		t += '<br /><strong>Lon:</strong><input type="text" readonly value="' + lng + '" />';
-		t += '<br />View area on:';
-		t += '<br /><a href="https://www.google.co.uk/maps/search/' + lat + ',' + lng + '/" target="_blank">Google Maps</a>';
-		t += '<br /><a href="https://www.cellmapper.net/map?MCC=234&MNC=' + mnc + '&type=LTE&latitude=' + lat + '&longitude=' + lng + '&zoom=15&clusterEnabled=false" target="_blank">Cell Mapper</a>';
+		t += '<strong>Lat / Lng Coords:</strong><br/><input class="form-control form-control-sm" type="text" readonly value="' + lat + ', ' + lng + '" />';
+		t += '<span class="site_popup_links">View on:<br/>';
+		t += '<a href="https://www.google.co.uk/maps/search/' + lat + ',' + lng + '/" target="_blank">Google Maps</a> | ';
+		t += '<a href="https://www.openstreetmap.org/#map=15/' + lat + '/' + lng + '/" target="_blank">OSM</a> | ';
+		t += '<a href="https://www.cellmapper.net/map?MCC=234&MNC=' + mnc + '&type=LTE&latitude=' + lat + '&longitude=' + lng + '&zoom=15&clusterEnabled=false" target="_blank">Cell Mapper</a>';
+		t += '</span>';
 
 		return t;
 	},
@@ -762,8 +763,8 @@ let v = {
 	},
 
 	addPointToMap: function (point) {
-		let tLat = point.lat;
-		let tLng = point.lng;
+		let tLat = round(point.lat, 7);
+		let tLng = round(point.lng, 7);
 		let tEnb = point.id;
 
 		let markerPopOpts = {
