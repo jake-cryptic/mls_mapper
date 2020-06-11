@@ -40,6 +40,14 @@
 				</div>
 				<div id="toast_content_body" class="toast-body">API Request Ongoing...</div>
 			</div>
+			<div id="toast_action_required" class="toast" data-autohide="true" data-delay="5000">
+				<div class="toast-header">
+					<strong class="mr-auto text-primary">Question</strong>
+					<small class="text-muted">now</small>
+					<button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
+				</div>
+				<div id="toast_action_content" class="toast-body">You shouldn't see this.</div>
+			</div>
 			<?php
 				include($main_file ?? "404.php");
 			?>

@@ -410,7 +410,20 @@ let v = {
 		},
 		burnToastMessage:function(){
 			$('#toast_content').attr('data-autohide', true).toast('hide');
-		}
+		},
+
+		popToastAction:function(txt, yesTxt, noTxt, successCallback){
+			$("#toast_action_content").empty().append(
+				txt,
+				$("<button/>",{"class":"btn btn-success btn-sm"}).text(yesTxt).on("click enter", successCallback),
+				$("<button/>",{"class":"btn btn-danger btn-sm"}).text(noTxt).on("click enter", v.ui.burnToastAction)
+			);
+
+			$("#toast_action_required").attr('data-autohide', false).toast('show');
+		},
+		burnToastAction:function(){
+			$('#toast_action_required').attr('data-autohide', true).toast('hide');
+		},
 	},
 
 	osm: {
@@ -744,10 +757,11 @@ let v = {
 	},
 
 	p: {
-		move:function(evt){
+		move_attempt:{},
+		attemptMove:function(evt){
 			if (!evt) return;
 
-			let send = {
+			v.p.move_attempt = {
 				mcc:v.mcc,
 				mnc:evt.target.options.mnc,
 				enb:evt.target.options.enb,
@@ -755,16 +769,26 @@ let v = {
 				lng:evt.target._latlng.lng
 			};
 
+			v.ui.popToastAction("Are you sure you wish to move this node?", "Yes", "No", function(){
+				v.ui.burnToastAction();
+				v.p.sendMove();
+			});
+		},
+		sendMove:function(){
+			v.ui.popToastMessage("Updating Node....", false);
+
 			$.ajax({
 				url: 'api/update-node/',
 				type: 'POST',
-				data: send,
+				data: v.p.move_attempt,
 				dataType: 'json',
 				success: function (resp) {
 					console.log(resp);
+					v.ui.popToastMessage("Update Success", true);
 					v.m.reloadMap();
 				},
 				error: function (e) {
+					v.ui.popToastMessage("Failed to update node!", true);
 					console.error(e);
 				}
 			});
@@ -811,7 +835,7 @@ let v = {
 					poptext, markerPopOpts
 				).bindTooltip(
 					tooltext, markerToolOpts
-				).on("moveend", v.p.move)
+				).on('moveend', v.p.attemptMove)
 			);
 		}
 
