@@ -139,6 +139,10 @@ tr td:nth-child(2){
 	display: block;
 }
 
+.site_approx_addr {
+	display: block;
+}
+
 .sect {
 	display: block;
 	font-size:1.2em;
@@ -154,6 +158,16 @@ tr td:nth-child(2){
 	display:inline-block;
 	height: auto;
 	min-height: 2em;
+}
+
+.leaflet-tooltip {
+	border-radius:1em !important;
+	padding:0.25em 0.3em !important;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.marker_label {
+	font-size:1.1em;
 }
 
 @media screen and (max-width:768px) {

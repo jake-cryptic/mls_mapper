@@ -446,8 +446,7 @@ let v = {
 				url: v.osm.api_base + "reverse",
 				data: "lat=" + lat + "&lon=" + lng + "&format=json&limit=1" + "&callback=?",
 				type: "GET",
-				dataType: "json",
-				timeout:15,
+				timeout:15000,
 				success: function(resp) {
 					let ret = "Address could not be found.";
 					if (resp && resp.display_name) {
@@ -582,11 +581,20 @@ let v = {
 		}
 	},
 
+	t:{
+		getSiteAddr: function(el, lat, lng){
+			let parent = el.parentElement;
+			v.osm.getApproxLocation(lat, lng, function(data){
+				parent.innerHTML = "<strong>Site Address:</strong><br/>" + data;
+			});
+		}
+	},
+
 	sectorInfo: function (mno, enb, sectors) {
 		let ret = "<strong>" + enb + "</strong>: ";
 		switch (mno) {
 			case 10:
-				if (findItem(sectors, [115, 125, 135, 145, 155, 165])) ret += "1 ";
+				if (findItem(sectors, [115, 125, 135, 145, 155, 165])) ret += (enb >= 500000 ? "1 " : "40C1 ");
 				if (findItem(sectors, [114, 124, 134, 144, 154, 164])) ret += (enb >= 500000 ? "3 " : "1 ");
 				if (findItem(sectors, [110, 120, 130, 140, 150, 160])) ret += "20 ";
 				if (findItem(sectors, [112, 122, 132])) ret += "8 ";
@@ -594,7 +602,7 @@ let v = {
 				if (findItem(sectors, [117, 127, 137, 147, 157, 167])) ret += "40C2";
 				break;
 			case 15:
-				if (findItem(sectors, [15, 25, 35, 45, 55, 65])) ret += "1 ";
+				if (findItem(sectors, [15, 25, 35, 45, 55, 65])) ret += (enb >= 500000 ? "1 " : "?");
 				if (findItem(sectors, [14, 24, 34, 44, 54, 64])) ret += "1 ";
 				if (findItem(sectors, [16, 26, 36, 46, 56, 66])) ret += "3 ";
 				if (findItem(sectors, [18, 28, 38, 48, 58, 68])) ret += "7 ";
@@ -696,6 +704,7 @@ let v = {
 		t += '<a href="https://www.openstreetmap.org/#map=15/' + lat + '/' + lng + '/" target="_blank">OSM</a> | ';
 		t += '<a href="https://www.cellmapper.net/map?MCC=234&MNC=' + mnc + '&type=LTE&latitude=' + lat + '&longitude=' + lng + '&zoom=15&clusterEnabled=false" target="_blank">Cell Mapper</a>';
 		t += '</span>';
+		t += '<span class="site_approx_addr"><button class="btn btn-primary btn-sm" onclick="v.t.getSiteAddr(this,' + lat + ',' + lng + ')">Get Site Address</button></span>';
 
 		return t;
 	},
@@ -774,7 +783,8 @@ let v = {
 
 		let markerToolOpts = {
 			permanent: true,
-			direction: 'bottom'
+			direction: 'bottom',
+			className: 'marker_label'
 		};
 
 		function pushPolygon(siteloc, sectorloc, color) {
