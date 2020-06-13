@@ -3,6 +3,8 @@ const EE_TMS_BASE = "https://maps.ee.co.uk//geowebcache/service/gmaps?&zoom={z}&
 const THREE_TMS_BASE = "http://www.three.co.uk/static/images/functional_apps/coverage/";
 const CM_TMS_BASE = "https://api.cellmapper.net/v6/getTile?MCC=234&MNC=";
 
+const MAPPR_VER = "mappr-v-0.1.0";
+
 let v = {
 	mLimit: 5000,
 	sLimit: 36,
@@ -233,6 +235,7 @@ let v = {
 		defaultCoords:[52.5201508, -1.5807446],
 
 		map: null,
+		map_id: "rdi",
 		moveTimer:null,
 		moveTimerDuration:1000,
 		ico: {
@@ -241,7 +244,10 @@ let v = {
 		},
 
 		init: function () {
-			v.m.map = L.map('map').setView(v.m.defaultCoords, v.m.zoom);
+			v.m.map = L.map('map', {
+				preferCanvas:true
+			}).setView(v.m.defaultCoords, v.m.zoom);
+
 			if (!v.loadedFromParams) {
 				v.m.moveToCurrentLocation();
 			}
@@ -251,7 +257,7 @@ let v = {
 			v.m.map.addEventListener('move', v.m.clearMoveTimer);
 			v.m.map.addEventListener('moveend', v.m.startMoveTimer);
 
-			v.m.changeMap("rdi");
+			v.m.changeMap(v.m.map_id);
 			v.m.initIcons();
 		},
 
@@ -291,6 +297,7 @@ let v = {
 		},
 
 		changeMap: function(map) {
+			if (!map) map = "rdi";
 			if (v.base) v.m.map.removeLayer(v.base);
 
 			let maps = {
@@ -306,13 +313,16 @@ let v = {
 			let server = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 				attr = v.attr.o;
 
-			if (map !== "osm") {
+			if (map && maps[map] && map !== "osm") {
 				attr = v.attr.g;
 				server = 'https://mt1.google.com/vt/lyrs=' + maps[map] + '&x={x}&y={y}&z={z}';
 			}
 
-			v.base = new L.TileLayer(server, {attribution: attr});
+			v.base = new L.TileLayer(server, {attribution: attr + " | " + MAPPR_VER});
+			v.m.map_id = map;
 			v.m.map.addLayer(v.base);
+
+			v.u.updateUrl();
 		},
 
 		mapMove: function (evt) {
@@ -379,6 +389,7 @@ let v = {
 			let params = {
 				"mcc": v.mcc,
 				"mnc": v.mno,
+				"map": v.m.map_id,
 				"lat": loc.lat || -1.5,
 				"lng": loc.lng || 52,
 				"zoom": zoom || 13
@@ -397,6 +408,7 @@ let v = {
 				v.mno = parseInt(obj.mnc);
 				v.m.defaultCoords = [obj.lat, obj.lng];
 				v.m.zoom = parseInt(obj.zoom);
+				v.m.map_id = obj.map;
 			}
 
 			if (cb) cb();
@@ -415,8 +427,10 @@ let v = {
 		popToastAction:function(txt, yesTxt, noTxt, successCallback){
 			$("#toast_action_content").empty().append(
 				txt,
-				$("<button/>",{"class":"btn btn-success btn-sm"}).text(yesTxt).on("click enter", successCallback),
-				$("<button/>",{"class":"btn btn-danger btn-sm"}).text(noTxt).on("click enter", v.ui.burnToastAction)
+				$("<br />"),
+				$("<button/>",{"class":"btn btn-success"}).text(yesTxt).on("click enter", successCallback),
+				" ",
+				$("<button/>",{"class":"btn btn-danger"}).text(noTxt).on("click enter", v.ui.burnToastAction)
 			);
 
 			$("#toast_action_required").attr('data-autohide', false).toast('show');

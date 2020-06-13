@@ -166,6 +166,10 @@ tr td:nth-child(2){
 	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
+.leaflet-popup-content {
+	margin:.7em .75em !important;
+}
+
 .marker_label {
 	font-size:1.1em;
 }

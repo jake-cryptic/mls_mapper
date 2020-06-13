@@ -56,18 +56,26 @@ $sLngNe = clean($_GET["nelng"]);
 
 t("Get Base Parameters");
 
-function getSqlParams($dbTbl) {
-	global $sLatSw, $sLngSw, $sLatNe, $sLngNe, $mnc, $enb, $enb_range;
+function getSqlCoordBounds($dbTbl) {
+	global $sLatSw, $sLngSw, $sLatNe, $sLngNe, $mnc;
 
 	$limitBounds = " AND ({$dbTbl}.lat > {$sLatSw})";
 	$limitBounds .= " AND ({$dbTbl}.lng < {$sLngNe})";
 	$limitBounds .= " AND ({$dbTbl}.lat < {$sLatNe})";
 	$limitBounds .= " AND ({$dbTbl}.lng > {$sLngSw})";
 
+	$limitMCC = "AND {$dbTbl}.mcc = ".DB_SECTORS.".mcc";
+
 	$limitMNC = "AND {$dbTbl}.mnc = ".DB_SECTORS.".mnc";
 	if ($mnc !== null){
 		$limitMNC .= " AND ".DB_SECTORS.".mnc={$mnc}";
 	}
+
+	return "{$limitBounds} {$limitMNC} {$limitMCC}";
+}
+
+function getSqlInfoBounds($dbTbl) {
+	global $enb, $enb_range, $sector_list, $pci_list;
 
 	$limitIds = "";
 	if ($enb !== null) {
@@ -76,22 +84,20 @@ function getSqlParams($dbTbl) {
 		$limitIds = "AND {$dbTbl}.enodeb_id > {$enb_range[0]} AND {$dbTbl}.enodeb_id < {$enb_range[1]}";
 	}
 
-	return "{$limitBounds} {$limitMNC} {$limitIds}";
-}
+	$limitSectors = "";
+	if (count($sector_list) > 0){
+		$sectorSql = implode(",",$sector_list);
+		$limitSectors = "AND ".DB_SECTORS.".sector_id IN ({$sectorSql})";
+	}
 
-$limitSectors = "";
-if (count($sector_list) > 0){
-	$sectorSql = implode(",",$sector_list);
-	$limitSectors = "AND ".DB_SECTORS.".sector_id IN ({$sectorSql})";
-}
+	$limitPCIs = "";
+	if (count($pci_list) > 0){
+		$pciSql = implode(",",$pci_list);
+		$limitSectors = "AND ".DB_SECTORS.".pci IN ({$pciSql})";
+	}
 
-$limitPCIs = "";
-if (count($pci_list) > 0){
-	$pciSql = implode(",",$pci_list);
-	$limitSectors = "AND ".DB_SECTORS.".pci IN ({$pciSql})";
+	return "{$limitSectors} {$limitPCIs} {$limitIds}";
 }
-
-t("Get Extended Parameters");
 
 $fetchWithUserLocations = true;
 if (!empty($_GET["alldata"])){
@@ -103,51 +109,59 @@ if (!empty($_GET["onlymls"])){
 	$fetchEstimatedLocations = true;
 }
 
-$dbTblList = array(DB_LOCATIONS);
-if ($fetchWithUserLocations) {
-	$dbTblList = array(DB_LOCATIONS, DB_MASTS);
-}
-if ($fetchEstimatedLocations) {
-	$dbTblList = array(DB_MASTS);
-}
+function getEnbs($dbTbl) {
+	global $db_connection;
+	$enbList = array();
 
-t("Get DbTbl Parameters");
+	$dbAreaLimit = getSqlCoordBounds($dbTbl);
+	$dbInfoLimit = getSqlInfoBounds($dbTbl);
 
-$enbList = array();
-foreach ($dbTblList as $dbTbl) {
-	$limitDbTbl = getSqlParams($dbTbl);
-	$sql = "SELECT DISTINCT({$dbTbl}.enodeb_id), {$dbTbl}.id, {$dbTbl}.lat, {$dbTbl}.lng, {$dbTbl}.mnc
+	$includeUserId = "";
+	if ($dbTbl === DB_LOCATIONS) {
+		$includeUserId = "{$dbTbl}.user_id, ";
+	}
+
+	$sql = "SELECT DISTINCT({$dbTbl}.enodeb_id), {$includeUserId} {$dbTbl}.id, {$dbTbl}.lat, {$dbTbl}.lng, {$dbTbl}.mnc, {$dbTbl}.mcc
 		FROM ".DB_SECTORS.", {$dbTbl}
 		WHERE {$dbTbl}.enodeb_id = ".DB_SECTORS.".enodeb_id
-		{$limitDbTbl} {$limitSectors} {$limitPCIs}
+		{$dbAreaLimit} {$dbInfoLimit}
 		LIMIT " . API_LIMIT;
-
-	if (DEBUG) die($sql);
 
 	// Run SQL query and return results
 	$get_enblist = $db_connection->query($sql);
 	echo $db_connection->error;
 	while ($node = $get_enblist->fetch_object()) {
-		if (array_key_exists($node->mnc . "_" . $node->enodeb_id, $enbList)) continue;
-
-		$enbList[$node->mnc . "_" . $node->enodeb_id] = array(
+		// if (array_key_exists($node->mnc . "_" . $node->enodeb_id, $enbList)) continue;
+		$enbList[$node->mcc . "_" . $node->mnc . "_" . $node->enodeb_id] = array(
 			"lat"=>$node->lat,
 			"lng"=>$node->lng,
-			"verified"=>$dbTbl === DB_LOCATIONS
+			"verified"=> $node->user_id ?? 0
 		);
 	}
 
-	t("Get Results for " . $dbTbl);
+	return $enbList;
 }
 
-$get_sectors = $db_connection->prepare("SELECT sector_id,pci,created,updated,lat,lng FROM ".DB_SECTORS." WHERE mnc = ? AND enodeb_id = ? LIMIT 50");
-$get_sectors->bind_param("ii",$thisMnc,$thisEnb);
+// Get MLS towers in the area
+$enbListMls = getEnbs(DB_MASTS);
+t("Get Results for " . DB_MASTS);
+
+$enbListLoc = getEnbs(DB_LOCATIONS);
+t("Get Results for " . DB_MASTS);
+
+$enbList = array_merge($enbListMls, $enbListLoc);
+
+if (DEBUG) die($sql);
+
+$get_sectors = $db_connection->prepare("SELECT sector_id,pci,created,updated,lat,lng FROM ".DB_SECTORS." WHERE mcc = ? AND mnc = ? AND enodeb_id = ? LIMIT 50");
+$get_sectors->bind_param("iii",$thisMcc,$thisMnc,$thisEnb);
 
 t("Prepare stmt");
 foreach($enbList as $identifier=>$coords) {
 	$node_id = explode("_", $identifier);
-	$thisMnc = $node_id[0];
-	$thisEnb = $node_id[1];
+	$thisMcc = $node_id[0];
+	$thisMnc = $node_id[1];
+	$thisEnb = $node_id[2];
 
 	if (!$get_sectors->execute()){
 		printf("Database Error: %s\n",$get_sectors->error);
@@ -167,6 +181,7 @@ foreach($enbList as $identifier=>$coords) {
 		"lat"=>$coords["lat"],
 		"lng"=>$coords["lng"],
 		"id"=>$thisEnb,
+		"mcc"=>$thisMcc,
 		"mnc"=>$thisMnc,
 		"sectors"=>$sectorList
 	);
