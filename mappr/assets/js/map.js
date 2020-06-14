@@ -43,6 +43,7 @@ let v = {
 		v.m.init();
 		v.assignEvents();
 		v.getMncData();
+		v.user.loadUserList();
 	},
 
 	getLocation: function (cb) {
@@ -313,9 +314,13 @@ let v = {
 			let server = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 				attr = v.attr.o;
 
-			if (map && maps[map] && map !== "osm") {
+			if (map && maps[map] && map !== "osm" && map !== "otm") {
 				attr = v.attr.g;
 				server = 'https://mt1.google.com/vt/lyrs=' + maps[map] + '&x={x}&y={y}&z={z}';
+			}
+
+			if (map === "otm") {
+				server = "https://tile.opentopomap.org/{z}/{x}/{y}.png";
 			}
 
 			v.base = new L.TileLayer(server, {attribution: attr + " | " + MAPPR_VER});
@@ -489,6 +494,16 @@ let v = {
 		}
 	},
 
+	user:{
+		list:{},
+
+		loadUserList: function(){
+			$.post("api/user-info", function(resp){
+				v.user.list = JSON.parse(resp);
+			});
+		}
+	},
+
 	assignEvents: function() {
 		$("#advanced_search").on("click enter", function () {
 			$("#searchPopup").modal("hide");
@@ -614,6 +629,10 @@ let v = {
 			v.osm.getApproxLocation(lat, lng, function(data){
 				parent.innerHTML = "<strong>Site Address:</strong><br/>" + data;
 			});
+		},
+
+		getSiteHistory: function(el, mnc, enb){
+			alert("Not yet " + mnc + " " + enb);
 		}
 	},
 
@@ -660,7 +679,7 @@ let v = {
 	},
 
 	getDataParameters: function () {
-		var data = {
+		let data = {
 			"limit_m": 1500,
 			"limit_s": 36
 		};
@@ -723,15 +742,19 @@ let v = {
 	},
 
 	getPopupText: function (enb, mnc, lat, lng) {
-		let t = '<span class="site_popup_title">'+enb+'</span>';
-
-		t += '<strong>Lat / Lng Coords:</strong><br/><input class="form-control form-control-sm" type="text" readonly value="' + lat + ', ' + lng + '" />';
-		t += '<span class="site_popup_links">View on:<br/>';
-		t += '<a href="https://www.google.co.uk/maps/search/' + lat + ',' + lng + '/" target="_blank">Google Maps</a> | ';
-		t += '<a href="https://www.openstreetmap.org/#map=15/' + lat + '/' + lng + '/" target="_blank">OSM</a> | ';
-		t += '<a href="https://www.cellmapper.net/map?MCC=234&MNC=' + mnc + '&type=LTE&latitude=' + lat + '&longitude=' + lng + '&zoom=15&clusterEnabled=false" target="_blank">Cell Mapper</a>';
-		t += '</span>';
-		t += '<span class="site_approx_addr"><button class="btn btn-primary btn-sm" onclick="v.t.getSiteAddr(this,' + lat + ',' + lng + ')">Get Site Address</button></span>';
+		let t = '\
+		<span class="site_popup_title">'+enb+'</span>\
+		<strong>Lat / Lng Coords:</strong><br/>\
+		<input class="form-control form-control-sm" type="text" readonly value="' + lat + ', ' + lng + '" />\
+		<span class="site_popup_links">View on:<br/>\
+			<a href="https://www.google.co.uk/maps/search/' + lat + ',' + lng + '/" target="_blank">Google Maps</a> | \
+			<a href="https://www.openstreetmap.org/#map=15/' + lat + '/' + lng + '/" target="_blank">OSM</a> | \
+			<a href="https://www.cellmapper.net/map?MCC=234&MNC=' + mnc + '&type=LTE&latitude=' + lat + '&longitude=' + lng + '&zoom=15&clusterEnabled=false" target="_blank">Cell Mapper</a>\
+		</span>\
+		<div class="site_approx_addr btn-group btn-group-sm" role="group" aria-label="Basic example">\
+			<button type="button" class="btn btn-secondary" onclick="v.t.getSiteAddr(this,' + lat + ',' + lng + ')">Address</button>\
+			<button type="button" class="btn btn-primary btn-sm" onclick="v.t.getSiteHistory(this,' + mnc + ',' + enb + ')">Location History</button>\
+		</div>';
 
 		return t;
 	},
@@ -873,6 +896,10 @@ let v = {
 			pushPolygon([tLat, tLng], [parseFloat(point.sectors[s][0]), parseFloat(point.sectors[s][1])], color);
 		}
 		txt += "</div>";
+
+		if (v.user.list[point.verified]){
+			txt += '<br />Located by: ' + v.user.list[point.verified];
+		}
 
 		pushMarker([tLat, tLng], txt, v.sectorInfo(parseInt(point.mnc), tEnb, Object.keys(point.sectors)), point);
 	},

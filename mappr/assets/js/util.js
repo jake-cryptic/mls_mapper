@@ -10,7 +10,7 @@ let tile2long = function(x,z) {
 };
 
 let tile2lat = function(y,z) {
-	var n=Math.PI-2*Math.PI*y/Math.pow(2,z);
+	let n=Math.PI-2*Math.PI*y/Math.pow(2,z);
 	return (180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
 };
 

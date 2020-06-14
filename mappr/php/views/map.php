@@ -81,7 +81,7 @@
 		<div class="tab-content">
 			<div class="tab-pane" id="map_settings">
 				<h2>Map Settings</h2>
-				<fieldset disabled="true">
+				<fieldset>
 					<legend>Results Options</legend>
 					<label for="adv_map_show_verified">Show Located Nodes</label>
 					<input type="checkbox" name="adv_map_show_verified" id="adv_map_show_verified" checked="checked" />
@@ -91,7 +91,8 @@
 				<fieldset>
 					<legend>Base Map</legend>
 					<select id="map_name">
-						<option value='osm'>OSM</option>
+						<option value='osm'>OpenStreetMap</option>
+						<option value='otm'>OpenTopoMap</option>
 						<option value='rdi' selected="selected">G Streets</option>
 						<option value='arm'>G Streets Alt</option>
 						<option value='hyb'>G Hybrid</option>
