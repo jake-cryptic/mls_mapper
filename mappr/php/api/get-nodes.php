@@ -99,16 +99,6 @@ function getSqlInfoBounds($dbTbl) {
 	return "{$limitSectors} {$limitPCIs} {$limitIds}";
 }
 
-$fetchWithUserLocations = true;
-if (!empty($_GET["alldata"])){
-	$fetchWithUserLocations = true;
-}
-
-$fetchEstimatedLocations = false;
-if (!empty($_GET["onlymls"])){
-	$fetchEstimatedLocations = true;
-}
-
 function getEnbs($dbTbl) {
 	global $db_connection;
 	$enbList = array();
@@ -142,14 +132,26 @@ function getEnbs($dbTbl) {
 	return $enbList;
 }
 
-// Get MLS towers in the area
+// Load DB data
+$enbListLoc = getEnbs(DB_LOCATIONS);
+t("Get Results for " . DB_LOCATIONS);
+
 $enbListMls = getEnbs(DB_MASTS);
 t("Get Results for " . DB_MASTS);
 
-$enbListLoc = getEnbs(DB_LOCATIONS);
-t("Get Results for " . DB_MASTS);
+// Conditionally return
+$enbList = array();
+if (!empty($_GET["verified"])){
+	$enbList = $enbListLoc;
+}
 
-$enbList = array_merge($enbListMls, $enbListLoc);
+if (!empty($_GET["estimate"])){
+	$enbList = $enbListMls;
+}
+
+if (!empty($_GET["verified"]) && !empty($_GET["estimate"])) {
+	$enbList = array_merge($enbListMls, $enbListLoc);
+}
 
 if (DEBUG) die($sql);
 

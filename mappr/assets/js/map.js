@@ -722,8 +722,8 @@ let v = {
 
 		data["mnc"] = v.mno;
 
-		if (v.showMls && v.showVerified) data["alldata"] = 1;
-		if (v.showMls && !v.showVerified) data["showmls"] = 1;
+		if (v.showMls) data["estimate"] = 1;
+		if (v.showVerified) data["verified"] = 1;
 
 		return data;
 	},
