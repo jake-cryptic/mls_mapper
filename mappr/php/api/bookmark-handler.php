@@ -14,7 +14,7 @@ function get_bookmarks() {
 	global $db_connection, $output;
 
 	$user_id = $_SESSION["user"]->getId();
-	$r = $db_connection->query("SELECT bookmark_id, name, description, lat, lng FROM " . DB_BOOKMARKS . " WHERE user_id = {$user_id} LIMIT 500");
+	$r = $db_connection->query("SELECT bookmark_id, name, description, lat, lng, created FROM " . DB_BOOKMARKS . " WHERE user_id = {$user_id} LIMIT 500");
 	if (!$r || $r->num_rows === 0) {
 		$output["message"] = "Cannot get bookmarks";
 		output();
