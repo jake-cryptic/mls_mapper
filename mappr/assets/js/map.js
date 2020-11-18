@@ -235,13 +235,16 @@ let v = {
 		zoom: 10,
 		defaultCoords:[52.5201508, -1.5807446],
 
+		isNodeLoadingPaused:false,
+
 		map: null,
 		map_id: "rdi",
 		moveTimer:null,
 		moveTimerDuration:1000,
 		ico: {
 			main: null,
-			located: null
+			located: null,
+			csv:null
 		},
 
 		init: function () {
@@ -260,6 +263,13 @@ let v = {
 
 			v.m.changeMap(v.m.map_id);
 			v.m.initIcons();
+		},
+
+		toggleNodeLoading:function(){
+			v.m.isNodeLoadingPaused = !v.m.isNodeLoadingPaused;
+			$("#node_loading_pause").text(v.m.isNodeLoadingPaused ? "Unpause Node Loading" : "Pause Node Loading");
+
+			v.u.updateUrl();
 		},
 
 		clearMoveTimer:function(){
@@ -291,6 +301,7 @@ let v = {
 
 			v.m.ico.main = new techIcon({iconUrl: 'assets/img/marker-default.png'});
 			v.m.ico.located = new techIcon({iconUrl: 'assets/img/marker-located.png'});
+			v.m.ico.csv = new techIcon({iconUrl: 'assets/img/marker-csv.png'});
 		},
 
 		setMap: function(){
@@ -332,12 +343,15 @@ let v = {
 
 		mapMove: function (evt) {
 			v.u.updateUrl();
-
-			console.log(evt);
 			v.m.reloadMap();
 		},
 
 		reloadMap: function() {
+			if (v.m.isNodeLoadingPaused) {
+				v.ui.popToastMessage("Node loading is currently paused.", true);
+				return;
+			}
+
 			document.title = "Reloading Map...";
 			v.ui.popToastMessage("Loading map data...", false);
 			v.m.removeMapItems();
@@ -358,6 +372,109 @@ let v = {
 		}
 	},
 
+	csv: {
+
+		conf:{
+			header:true,
+			skipEmptyLines:true,
+			dynamicTyping: true,
+			worker: false
+		},
+
+		markers:[],
+
+		dataPoints:[],
+		errors:[],
+		files:[],
+
+		init:function(){
+			// Check for browser file support for this feature
+			if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+				$("#files").empty().text('File API not supported');
+				return;
+			}
+
+			// Add callback functions to config
+			v.csv.conf['before'] = v.csv.parseBefore;
+			v.csv.conf['step'] = v.csv.parseStep;
+			v.csv.conf['complete'] = v.csv.parseComplete;
+
+			// Assign event listener
+			$("input[type=file]#csv_import").on("change", function(e) {
+				v.csv.parseFile($(this).prop('files')[0]);
+				return;
+				let fileReader = new FileReader();
+
+				fileReader.onload = function () {
+					v.csv.parse(fileReader.result);
+				};
+
+				fileReader.readAsDataURL(
+					$(this).prop('files')[0]
+				);
+			})
+		},
+
+		parseBefore: function(file, inputElem) {
+			console.log(file);
+			console.log(inputElem);
+		},
+
+		parseStep: function(row, parser) {
+			let r = row.data;
+
+			let point = {
+				lat: r.lat || r.latitude || r.y || 0,
+				lng: r.lng || r.lon || r.longitude || r.x || 0,
+				text: "Custom"
+			};
+
+			if (r.lat === 0 || !isNaN(r.lat) || r.lng === 0 || !isNaN(r.lng)) {
+				v.csv.errors.push(
+					row
+				);
+				return;
+			}
+
+			console.log(point);
+
+			v.csv.dataPoints.push(
+				new L.marker(
+					[point.lat, point.lng],
+					{
+						draggable:false,
+						autoPan:true,
+						icon: v.m.ico.csv
+					}
+				).bindTooltip(
+					point.text, {
+						permanent: true,
+						direction: 'bottom',
+						className: 'marker_label'
+					}
+				)
+			);
+			v.m.map.addLayer(v.csv.dataPoints[v.csv.dataPoints.length-1]);
+		},
+
+		parseComplete: function(result, par) {
+			console.log("done")
+		},
+
+		parseFile:function(f) {
+			v.csv.files.push(
+				Papa.parse(f, v.csv.conf)
+			);
+		},
+
+		parse:function(text) {
+			let raw = atob(text);
+			v.csv.files.push(
+				Papa.parse(raw, v.csv.conf)
+			);
+		}
+
+	},
 
 	u: {
 		h:window.history,
@@ -394,6 +511,7 @@ let v = {
 			let params = {
 				"mcc": v.mcc,
 				"mnc": v.mno,
+				"paused": v.m.isNodeLoadingPaused ? 1 : 0,
 				"map": v.m.map_id,
 				"lat": loc.lat || -1.5,
 				"lng": loc.lng || 52,
@@ -410,10 +528,12 @@ let v = {
 
 			if (Object.keys(obj).length > 4) {
 				v.loadedFromParams = true;
-				v.mno = parseInt(obj.mnc);
-				v.m.defaultCoords = [obj.lat, obj.lng];
-				v.m.zoom = parseInt(obj.zoom);
-				v.m.map_id = obj.map;
+
+				if (obj.mnc) v.mno = parseInt(obj.mnc);
+				if (obj.paused) v.m.isNodeLoadingPaused = parseInt(obj.paused) === 1;
+				if (obj.lat && obj.lng) v.m.defaultCoords = [obj.lat, obj.lng];
+				if (obj.zoom) v.m.zoom = parseInt(obj.zoom);
+				if (obj.map) v.m.map_id = obj.map;
 			}
 
 			if (cb) cb();
@@ -514,7 +634,11 @@ let v = {
 		$("#enb_search_submit").on("click enter", v.doNodeSearch);
 		$("#locate_user_manual").on("click enter", v.m.moveToCurrentLocation);
 
+		$("#node_markers_clear").on("click enter", v.m.removeMapItems);
+		$("#node_loading_pause").on("click enter", v.m.toggleNodeLoading);
+
 		v.sidebar.assignEvents();
+		v.csv.init();
 	},
 
 	changeMno: function() {
@@ -795,6 +919,7 @@ let v = {
 
 	p: {
 		move_attempt:{},
+
 		attemptMove:function(evt){
 			if (!evt) return;
 
@@ -811,6 +936,7 @@ let v = {
 				v.p.sendMove();
 			});
 		},
+
 		sendMove:function(){
 			v.ui.popToastMessage("Updating Node....", false);
 

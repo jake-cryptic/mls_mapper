@@ -10,11 +10,11 @@
 	</select>
 
 	<input type="search" name="enb_search" id="enb_search" placeholder="Search eNBs" />
-	<button type="button" class="btn btn-primary" id="enb_search_submit"><i class="fas fa-search"></i></button>
+	<button type="button" aria-label="Do eNodeB Search" class="btn btn-primary" id="enb_search_submit"><i class="fas fa-search"></i></button>
 
-	<button type="button" class="btn btn-secondary" id="sidebar_toggle"><i class="fas fa-bars"></i></button>
-	<button type="button" class="btn btn-primary" id="locate_user_manual"><i class="fas fa-location-arrow"></i></button>
-	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchPopup"><i class="fas fa-caret-square-down"></i></button>
+	<button type="button" aria-label="Toggle sidebar" class="btn btn-secondary" id="sidebar_toggle"><i class="fas fa-bars"></i></button>
+	<button type="button" aria-label="Move map to current location" class="btn btn-primary" id="locate_user_manual"><i class="fas fa-location-arrow"></i></button>
+	<button type="button" aria-label="Advanced search" class="btn btn-primary" data-toggle="modal" data-target="#searchPopup"><i class="fas fa-caret-square-down"></i></button>
 </div>
 
 <!-- Settings -->
@@ -77,10 +77,15 @@
 			<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="results"><i class="fas fa-broadcast-tower"></i></a>
 			<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="user_pane"><i class="fas fa-user-alt"></i></a>
 			<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="bookmarks"><i class="fas fa-bookmark"></i></a>
+			<a class="nav-item nav-link" href="#" role="tab" data-sidebartab="files"><i class="fas fa-file"></i></a>
 		</nav>
 		<div class="tab-content">
 			<div class="tab-pane" id="map_settings">
 				<h2>Map Settings</h2>
+
+				<button aria-label="Pause / Unpause node loading" id="node_loading_pause" class="btn btn-primary">Pause Node Loading</button>
+				<button aria-label="Clear map markers" id="node_markers_clear" class="btn btn-danger">Delete Map Markers</button>
+
 				<fieldset>
 					<legend>Results Options</legend>
 					<label for="adv_map_show_verified">Show Located Nodes</label>
@@ -136,6 +141,24 @@
 			<div class="tab-pane" id="bookmarks">
 				<h2>Bookmarked Locations</h2>
 				<button id="bookmarks_reload" class="btn btn-primary">Reload List</button>
+			</div>
+			<div class="tab-pane" id="files">
+				<h2>CSV Files</h2>
+				<input type="file" id="csv_import" accept="text/csv" />
+				<table>
+					<thead>
+						<tr>
+							<th>File Name</th>
+							<th>Rows</th>
+							<th>Options</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td colspan="3">No files loaded</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
