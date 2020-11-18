@@ -29,6 +29,8 @@ HTMLTABLE;
 		}
 	}
 	echo "</tbody></table>";
+	ob_flush();
+	flush();
 }
 
 ?>

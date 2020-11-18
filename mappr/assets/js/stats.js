@@ -3,6 +3,10 @@ function getDateString(uts) {
 	return d.getFullYear() + "-" + d.getMonth() + "-" + (d.getDate().toString().length === 1 ? "0" + d.getDate() : d.getDate());
 }
 
+let isMobileDevice = function(){
+	return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+};
+
 let base = "api/stats/";
 let currentMin = getDateString();
 let mncColors = {
@@ -28,6 +32,7 @@ let config = {
 			animationDuration: 0
 		},
 		responsiveAnimationDuration: 0,
+		maintainAspectRatio: !isMobileDevice(),
 		title: {
 			display: true,
 			text: 'Carrier Comparison'
