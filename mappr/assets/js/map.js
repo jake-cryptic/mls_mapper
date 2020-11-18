@@ -425,38 +425,39 @@ let v = {
 
 		parseStep: function(row, parser) {
 			let r = row.data;
+			console.log(row.data);
 
 			let point = {
 				lat: r.lat || r.latitude || r.y || 0,
 				lng: r.lng || r.lon || r.longitude || r.x || 0,
-				text: "Custom"
+				text: ""
 			};
 
-			if (r.lat === 0 || !isNaN(r.lat) || r.lng === 0 || !isNaN(r.lng)) {
+			if (point.lat === 0 || isNaN(point.lat) || point.lng === 0 || isNaN(point.lng)) {
 				v.csv.errors.push(
 					row
 				);
 				return;
 			}
 
-			console.log(point);
-
-			v.csv.dataPoints.push(
-				new L.marker(
-					[point.lat, point.lng],
-					{
-						draggable:false,
-						autoPan:true,
-						icon: v.m.ico.csv
-					}
-				).bindTooltip(
-					point.text, {
-						permanent: true,
-						direction: 'bottom',
-						className: 'marker_label'
-					}
-				)
+			let m = new L.marker(
+				[point.lat, point.lng],
+				{
+					draggable:false,
+					autoPan:true,
+					icon: v.m.ico.csv
+				}
 			);
+
+			if (point.text !== "") {
+				m.bindTooltip(point.text, {
+					permanent: true,
+					direction: 'bottom',
+					className: 'marker_label'
+				});
+			}
+
+			v.csv.dataPoints.push(m);
 			v.m.map.addLayer(v.csv.dataPoints[v.csv.dataPoints.length-1]);
 		},
 
