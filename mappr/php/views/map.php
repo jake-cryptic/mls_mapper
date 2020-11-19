@@ -83,8 +83,17 @@
 			<div class="tab-pane" id="map_settings">
 				<h2>Map Settings</h2>
 
-				<button aria-label="Pause / Unpause node loading" id="node_loading_pause" class="btn btn-primary">Pause Node Loading</button>
-				<button aria-label="Clear map markers" id="node_markers_clear" class="btn btn-danger">Delete Map Markers</button>
+				<div class="btn-group" role="group" aria-label="Map item controls">
+					<button aria-label="Pause / Unpause node loading" id="node_loading_pause" class="btn btn-primary btn-block btn-sm">
+						<i class="fas fa-pause"></i> Pause Node Loading
+					</button><br />
+					<button aria-label="Disable / Enable node polygons" id="node_polygons_pause" class="btn btn-info btn-block btn-sm">
+						<i class="fas fa-shapes"></i> Disable Node Polygons
+					</button><br />
+					<button aria-label="Clear map markers" id="node_markers_clear" class="btn btn-danger btn-block btn-sm">
+						<i class="fas fa-trash"></i> Delete Map Markers
+					</button>
+				</div>
 
 				<fieldset>
 					<legend>Results Options</legend>

@@ -239,6 +239,7 @@ let v = {
 		defaultCoords:[52.5201508, -1.5807446],
 
 		isNodeLoadingPaused:false,
+		isNodePolygonPaused:false,
 
 		map: null,
 		map_id: "rdi",
@@ -273,6 +274,13 @@ let v = {
 			$("#node_loading_pause").text(v.m.isNodeLoadingPaused ? "Unpause Node Loading" : "Pause Node Loading");
 
 			v.u.updateUrl();
+		},
+
+		togglePolygonPause:function(){
+			v.m.isNodePolygonPaused = !v.m.isNodePolygonPaused;
+			$("#node_polygons_pause").text(v.m.isNodePolygonPaused ? "Enable Node Polygons" : "Disable Node Polygons");
+			v.m.removeMapPolygons();
+			//v.u.updateUrl();
 		},
 
 		clearMoveTimer:function(){
@@ -361,18 +369,27 @@ let v = {
 			v.loadData();
 		},
 
-		removeMapItems: function () {
+		removeMapItems:function(){
+			v.m.removeMapMarkers();
+			v.m.removeMapPolygons();
+		},
+
+		removeMapMarkers: function() {
 			for (let marker in v.markers) {
 				v.m.map.removeLayer(v.markers[marker]);
 			}
 
+			v.markers = [];
+		},
+
+		removeMapPolygons: function(){
 			for (let polygon in v.polygons) {
 				v.m.map.removeLayer(v.polygons[polygon]);
 			}
 
 			v.polygons = [];
-			v.markers = [];
 		}
+
 	},
 
 	csv: {
@@ -640,6 +657,7 @@ let v = {
 
 		$("#node_markers_clear").on("click enter", v.m.removeMapItems);
 		$("#node_loading_pause").on("click enter", v.m.toggleNodeLoading);
+		$("#node_polygons_pause").on("click enter", v.m.togglePolygonPause);
 
 		v.sidebar.assignEvents();
 		v.csv.init();
@@ -1023,7 +1041,7 @@ let v = {
 			txt += "<span class='sect' style='background-color:" + color + "' title='" + dates + "'>" + s + "</span>";
 
 			//sectCoords.push([point.sectors[s][0], point.sectors[s][1]]);
-			pushPolygon([tLat, tLng], [parseFloat(point.sectors[s][0]), parseFloat(point.sectors[s][1])], color);
+			if (!v.m.isNodePolygonPaused) pushPolygon([tLat, tLng], [parseFloat(point.sectors[s][0]), parseFloat(point.sectors[s][1])], color);
 		}
 		txt += "</div>";
 
