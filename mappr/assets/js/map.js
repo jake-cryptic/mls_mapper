@@ -1,5 +1,6 @@
 const O2_TMS_BASE = "https://68aa7b45-tiles.spatialbuzz.net/tiles/o2_uk-";
-const EE_TMS_BASE = "https://maps.ee.co.uk//geowebcache/service/gmaps?&zoom={z}&x={x}&y={y}&format=image/png&Layers=";
+//const EE_TMS_BASE = "https://maps.ee.co.uk//geowebcache/service/gmaps?&zoom={z}&x={x}&y={y}&format=image/png&Layers=";
+const EE_TMS_BASE = "https://coverage.ee.co.uk/geowebcache/service/gmaps?&zoom={z}&x={x}&y={y}&format=image/png&Layers=";
 const THREE_TMS_BASE = "http://www.three.co.uk/static/images/functional_apps/coverage/";
 const CM_TMS_BASE = "https://api.cellmapper.net/v6/getTile?MCC=234&MNC=";
 
@@ -186,10 +187,14 @@ let v = {
 				"4g1800":EE_TMS_BASE + "4g_1800_ltea",
 				"4g1800ds":EE_TMS_BASE + "4g_1800_ds_ltea",
 				"4g2600":EE_TMS_BASE + "4g_2600_ltea",
-				"2G":EE_TMS_BASE + "2g_ltea",
-				"3G":EE_TMS_BASE + "3g_ltea",
-				"4G":EE_TMS_BASE + "4g_ltea",
-				"5G":EE_TMS_BASE + "5g_ltea"
+				"2G-old":EE_TMS_BASE + "2g_ltea",
+				"3G-old":EE_TMS_BASE + "3g_ltea",
+				"4G-old":EE_TMS_BASE + "4g_ltea",
+				"5G-old":EE_TMS_BASE + "5g_ltea",
+				"2G":EE_TMS_BASE + "2g_ee",
+				"3G":EE_TMS_BASE + "3g_ee",
+				"4G":EE_TMS_BASE + "4g_ee",
+				"5G":EE_TMS_BASE + "5g_ee"
 			}
 		},
 
