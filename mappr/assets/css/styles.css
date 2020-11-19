@@ -61,7 +61,7 @@ select {
 #map_settings {
 	text-align:center;
 }
-#map_settings select, #map_settings button {
+#operator_maps button {
 	display:inline-block;
 	float:none;
 	width:33.333%;

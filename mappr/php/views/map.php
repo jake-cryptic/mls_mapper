@@ -102,9 +102,9 @@
 					<label for="adv_map_show_mls">Show MLS Nodes</label>
 					<input type="checkbox" name="adv_map_show_mls" id="adv_map_show_mls" checked="checked" />
 				</fieldset>
-				<fieldset>
+				<fieldset class="px-2">
 					<legend>Base Map</legend>
-					<select id="map_name">
+					<select id="map_name" class="custom-select mb-3">
 						<option value='osm'>OpenStreetMap</option>
 						<option value='otm'>OpenTopoMap</option>
 						<option value='rdi' selected="selected">G Streets</option>
@@ -117,8 +117,12 @@
 					</select>
 					<hr/>
 					<label for="world_location_search">Search for a location...</label>
-					<input class="form-control" type="text" maxlength="250" minlength="2" id="world_location_search" name="world_location_search" placeholder="Enter an address" />
-					<button id="do_world_location_search" class="btn btn-secondary">Search!</button>
+					<div class="input-group mb-3">
+						<input class="form-control" type="text" maxlength="250" minlength="2" id="world_location_search" name="world_location_search" aria-label="Search for an address" placeholder="Enter an address, postcode, city.." />
+						<div class="input-group-append">
+							<button id="do_world_location_search" class="btn btn-secondary" type="button"><i class="fas fa-search"></i></button>
+						</div>
+					</div>
 					<hr/>
 				</fieldset>
 				<fieldset id="operator_maps">
