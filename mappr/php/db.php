@@ -3,7 +3,7 @@
 // Database logins
 if ($_SERVER["SERVER_NAME"] === "localhost") {
 	DEFINE("DB_USERNAME","root");
-	DEFINE("DB_DATABASE","lte_jcellsort");
+	DEFINE("DB_DATABASE","pycellsort");
 	DEFINE("DB_PASSWORD","");
 	DEFINE("DB_HOSTNAME","localhost");
 } else {
@@ -15,7 +15,7 @@ if ($_SERVER["SERVER_NAME"] === "localhost") {
 
 DEFINE("DB_USERS","users");
 DEFINE("DB_BOOKMARKS","bookmarks");
-DEFINE("DB_MASTS","masts");
+DEFINE("DB_MASTS","nodes");
 DEFINE("DB_LOCATIONS","mast_locations");
 DEFINE("DB_SECTORS","sectors");
 

@@ -79,9 +79,9 @@ function getSqlInfoBounds($dbTbl) {
 
 	$limitIds = "";
 	if ($enb !== null) {
-		$limitIds = "AND {$dbTbl}.enodeb_id = '{$enb}'";
+		$limitIds = "AND {$dbTbl}.node_id = '{$enb}'";
 	} else if (count($enb_range) === 2){
-		$limitIds = "AND {$dbTbl}.enodeb_id > {$enb_range[0]} AND {$dbTbl}.enodeb_id < {$enb_range[1]}";
+		$limitIds = "AND {$dbTbl}.node_id > {$enb_range[0]} AND {$dbTbl}.node_id < {$enb_range[1]}";
 	}
 
 	$limitSectors = "";
@@ -111,9 +111,9 @@ function getEnbs($dbTbl) {
 		$includeUserId = "{$dbTbl}.user_id, ";
 	}
 
-	$sql = "SELECT DISTINCT({$dbTbl}.enodeb_id), {$includeUserId} {$dbTbl}.id, {$dbTbl}.lat, {$dbTbl}.lng, {$dbTbl}.mnc, {$dbTbl}.mcc
+	$sql = "SELECT DISTINCT({$dbTbl}.node_id), {$includeUserId} {$dbTbl}.id, {$dbTbl}.lat, {$dbTbl}.lng, {$dbTbl}.mean_lat, {$dbTbl}.mean_lng, {$dbTbl}.mnc, {$dbTbl}.mcc
 		FROM ".DB_SECTORS.", {$dbTbl}
-		WHERE {$dbTbl}.enodeb_id = ".DB_SECTORS.".enodeb_id
+		WHERE {$dbTbl}.node_id = ".DB_SECTORS.".node_id
 		{$dbAreaLimit} {$dbInfoLimit}
 		LIMIT " . API_LIMIT;
 
@@ -121,10 +121,12 @@ function getEnbs($dbTbl) {
 	$get_enblist = $db_connection->query($sql);
 	echo $db_connection->error;
 	while ($node = $get_enblist->fetch_object()) {
-		// if (array_key_exists($node->mnc . "_" . $node->enodeb_id, $enbList)) continue;
-		$enbList[$node->mcc . "_" . $node->mnc . "_" . $node->enodeb_id] = array(
+		// if (array_key_exists($node->mnc . "_" . $node->node_id, $enbList)) continue;
+		$enbList[$node->mcc . "_" . $node->mnc . "_" . $node->node_id] = array(
 			"lat"=>$node->lat,
 			"lng"=>$node->lng,
+			"mean_lat"=>$node->mean_lat,
+			"mean_lng"=>$node->mean_lng,
 			"verified"=> $node->user_id ?? 0
 		);
 	}
@@ -133,7 +135,8 @@ function getEnbs($dbTbl) {
 }
 
 // Load DB data
-$enbListLoc = getEnbs(DB_LOCATIONS);
+//$enbListLoc = getEnbs(DB_LOCATIONS);
+$enbListLoc = array();
 t("Get Results for " . DB_LOCATIONS);
 
 $enbListMls = getEnbs(DB_MASTS);
@@ -155,7 +158,7 @@ if (!empty($_GET["verified"]) && !empty($_GET["estimate"])) {
 
 if (DEBUG) die($sql);
 
-$get_sectors = $db_connection->prepare("SELECT sector_id,pci,created,updated,lat,lng FROM ".DB_SECTORS." WHERE mcc = ? AND mnc = ? AND enodeb_id = ? LIMIT 50");
+$get_sectors = $db_connection->prepare("SELECT sector_id,pci,created,updated,lat,lng FROM ".DB_SECTORS." WHERE mcc = ? AND mnc = ? AND node_id = ? LIMIT 50");
 $get_sectors->bind_param("iii",$thisMcc,$thisMnc,$thisEnb);
 
 t("Prepare stmt");
@@ -179,7 +182,7 @@ foreach($enbList as $identifier=>$coords) {
 	}
 	
 	$returnData[] = array(
-		"verified"=>$coords["verified"],
+		"verified"=>1,
 		"lat"=>$coords["lat"],
 		"lng"=>$coords["lng"],
 		"id"=>$thisEnb,
@@ -187,6 +190,16 @@ foreach($enbList as $identifier=>$coords) {
 		"mnc"=>$thisMnc,
 		"sectors"=>$sectorList
 	);
+
+    $returnData[] = array(
+        "verified"=>0,
+        "lat"=>$coords["mean_lat"],
+        "lng"=>$coords["mean_lng"],
+        "id"=>$thisEnb . "_unverif",
+        "mcc"=>$thisMcc,
+        "mnc"=>$thisMnc,
+        "sectors"=>$sectorList
+    );
 }
 t("Process eNBs");
 

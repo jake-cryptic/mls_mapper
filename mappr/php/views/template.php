@@ -16,7 +16,7 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 		<meta name="apple-mobile-web-app-title" content="Mappr">
 
-		<link rel="stylesheet" type="text/css" href="assets/css/styles.css?v=<?php echo $fv; ?>" />
+		<link rel="stylesheet" type="text/css" href="assets/css/styles.css" />
 		<link rel="manifest" href="/manifest.json" />
 
 		<!-- Fonts -->

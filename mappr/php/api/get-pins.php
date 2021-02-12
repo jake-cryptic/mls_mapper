@@ -56,9 +56,9 @@ if ($mnc !== null){
 
 $limitIds = "";
 if ($enb !== null) {
-	$limitIds = "AND ".DB_MASTS.".enodeb_id = '$enb'";
+	$limitIds = "AND ".DB_MASTS.".node_id = '$enb'";
 } else if (count($enb_range) === 2){
-	$limitIds = "AND ".DB_MASTS.".enodeb_id > {$enb_range[0]} AND ".DB_MASTS.".enodeb_id < {$enb_range[1]}";
+	$limitIds = "AND ".DB_MASTS.".node_id > {$enb_range[0]} AND ".DB_MASTS.".node_id < {$enb_range[1]}";
 }
 
 $limitSectors = "";
@@ -73,9 +73,9 @@ if (count($pci_list) > 0){
 	$limitSectors = "AND ".DB_SECTORS.".pci IN ({$pciSql})";
 }
 
-$sql = "SELECT DISTINCT(".DB_MASTS.".enodeb_id), ".DB_MASTS.".lat, ".DB_MASTS.".lng, ".DB_SECTORS.".mnc
+$sql = "SELECT DISTINCT(".DB_MASTS.".node_id), ".DB_MASTS.".lat, ".DB_MASTS.".lng, ".DB_SECTORS.".mnc
 		FROM ".DB_SECTORS.", ".DB_MASTS."
-		WHERE ".DB_MASTS.".enodeb_id = ".DB_SECTORS.".enodeb_id
+		WHERE ".DB_MASTS.".node_id = ".DB_SECTORS.".node_id
 		{$limitMNC} {$limitIds} {$limitPCIs} {$limitSectors} {$limitBounds}
 		LIMIT " . API_LIMIT;
 
@@ -84,12 +84,12 @@ if (DEBUG) die($sql);
 // Run SQL query and return results
 $get_enblist = $db_connection->query($sql);
 
-$get_sectors = $db_connection->prepare("SELECT sector_id,pci,created,updated,lat,lng FROM ".DB_SECTORS." WHERE mnc = ? AND enodeb_id = ? LIMIT 50");
+$get_sectors = $db_connection->prepare("SELECT sector_id,pci,created,updated,lat,lng FROM ".DB_SECTORS." WHERE mnc = ? AND node_id = ? LIMIT 50");
 $get_sectors->bind_param("ii",$thisMnc,$thisEnb);
 
 while ($node = $get_enblist->fetch_object()){
 	$thisMnc = $node->mnc;
-	$thisEnb = $node->enodeb_id;
+	$thisEnb = $node->node_id;
 
 	if (!$get_sectors->execute()){
 		printf("Database Error: %s\n",$get_sectors->error);

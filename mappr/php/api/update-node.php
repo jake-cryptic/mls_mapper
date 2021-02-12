@@ -12,7 +12,7 @@ $lng = floatval($_POST["lng"]);
 $time = time();
 $uid = $_SESSION["user"]->getId();
 
-$q = "INSERT INTO " . DB_LOCATIONS . " (mcc, mnc, enodeb_id, updated, lat, lng, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+$q = "INSERT INTO " . DB_LOCATIONS . " (mcc, mnc, node_id, updated, lat, lng, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 $stmt = $db_connection->prepare($q);
 $stmt->bind_param("iiiiddi", $mcc, $mnc, $enb, $time, $lat, $lng, $uid);
 $r = $stmt->execute();
