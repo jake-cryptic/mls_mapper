@@ -1,0 +1,135 @@
+var v = {
+	map:null,
+	mno:10,
+	markers:[],
+	ico:{
+		main:null,
+		multiple:null
+	},
+	
+	init:function(){
+		v.map = L.map('map').setView([52.5201508,-1.5807446], 7);
+		v.initMapOsm();
+		
+		v.map.addEventListener('contextmenu',v.mapMove);
+		
+		var techIcon = L.Icon.extend({
+			options: {
+				iconSize:[25,41],
+				iconAnchor:[12.5,41],
+				popupAnchor:[0,-28]
+			}
+		});
+		
+		v.ico.main		= new techIcon({iconUrl: 'img/marker-default.png'});
+		v.ico.multiple	= new techIcon({iconUrl: 'img/marker-multiple.png'});
+	},
+	
+	changeMap:function(map){
+		if (v.base){
+			v.map.removeLayer(v.base);
+		}
+		if (map.value === "sat") v.initGMap("s");
+		if (map.value === "ter") v.initGMap("p");
+		if (map.value === "tro") v.initGMap("t");
+		if (map.value === "rdo") v.initGMap("h");
+		if (map.value === "rdi") v.initGMap("m");
+		if (map.value === "arm") v.initGMap("r");
+		if (map.value === "hyb") v.initGMap("y");
+		if (map.value === "osm") v.initMapOsm();
+	},
+	
+	changeMno:function(mno){
+		v.mno = parseInt(mno.value);
+		v.removeMapMarkers();
+		v.loadPoints();
+	},
+	
+	initGMap:function(l){
+		v.base = new L.TileLayer(
+			'https://mt1.google.com/vt/lyrs='+l+'&x={x}&y={y}&z={z}',
+			{attribution: '<a href="https://maps.google.co.uk">Google Maps</a>'}
+		);
+		v.map.addLayer(v.base);
+	},
+	initMapOsm:function(){
+		v.base = new L.TileLayer(
+			'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			{attribution: '<a href="http://openstreetmap.org">OpenStreetMap</a>'}
+		);
+		v.map.addLayer(v.base);
+	},
+	
+	mapMove:function(evt){
+		console.log(evt);
+		v.removeMapMarkers();
+		v.loadPoints();
+	},
+	
+	removeMapMarkers:function(){
+		for (var marker in v.markers){
+			v.map.removeLayer(v.markers[marker]);
+		}
+		v.markers = [];
+	},
+	
+	loadPoints:function(){
+		var bounds = v.map.getBounds();
+		
+		$.ajax({
+			url:'get-pins.php',
+			type:'GET',
+			data:{
+				nelat:bounds._northEast.lat,
+				nelng:bounds._northEast.lng,
+				swlat:bounds._southWest.lat,
+				swlng:bounds._southWest.lng,
+				mno:v.mno
+			},
+			dataType:'json',
+			success:v.placePoints,
+			error:function(e){
+				console.error(e);
+			}
+		});
+	},
+	
+	placePoints:function(data){
+		for (var i = 0;i<data.length;i++){
+			let tLat = data[i].lat;
+			let tLng = data[i].lng;
+			
+			var marker = v.ico.main;
+			var a = false;
+			var txt = data[i].id + '<br/><strong>Coord Lat:</strong><input type="text" readonly value="'+tLat+'" /><br/>\
+				<strong>Coord Lon:</strong><input type="text" readonly value="'+tLng+'" /><br/><br/>\
+				View area on <a href="https://www.google.co.uk/maps/search/'+tLat+','+tLng+'/" target="_blank">Google Maps</a>\
+				<a href="https://www.cellmapper.net/map?MCC=234&MNC='+v.mno+'&type=LTE&latitude='+tLat+'&longitude='+tLng+'&zoom=16&clusterEnabled=false" target="_blank">Cell Mapper</a>';
+			
+			var o2 = [110,114,115,116,117,120,124,125,126,127,130,134,135,136,137,140,144,145,146,147,150,154,155,156,157,160,164,165,166,167];
+			txt += "<div class='sect_block'>";
+			for (var s in data[i].sectors){
+				if (o2.indexOf(parseInt(s)) !== -1){
+					 marker = v.ico.multiple;
+					 a = true;
+				}
+				txt += "<span class='sect'>" + s + "</span>";
+			}
+			txt += "</div>";
+			
+			if (a !== false) continue;
+			v.markers.push(
+				new L.marker(
+					[tLat,tLng],
+					{icon:marker}
+				).bindPopup(txt,{maxWidth:(screen.availWidth >= 600 ? 600 : screen.availWidth),className:'site_popup'})
+			);
+		}
+		
+		for (var marker in v.markers){
+			v.map.addLayer(v.markers[marker]);
+		}
+	}
+};
+
+v.init();

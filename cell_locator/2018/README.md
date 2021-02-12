@@ -1,0 +1,1 @@
+Find all LTE cells, store sectors in array
